@@ -1,0 +1,13 @@
+.api-explorer-response pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    white-space: pre;
+    overflow-x: auto;
+    line-height: 1.5;
+    border-radius: .5rem;
+}
+
+.api-explorer-response .meta {
+    display: flex;
+    gap: .75rem;
+    align-items: center;
+}

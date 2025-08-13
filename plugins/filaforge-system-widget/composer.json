@@ -1,0 +1,27 @@
+{
+    "name": "filaforge/system-monitor",
+    "description": "Filament v4 dashboard widget for real-time system monitoring",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.1",
+        "filament/filament": "^4.0",
+        "illuminate/support": "^12.0",
+        "spatie/laravel-package-tools": "^1.16",
+        "symfony/process": "^7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Filaforge\\SystemMonitor\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Filaforge\\SystemMonitor\\Providers\\SystemMonitorServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

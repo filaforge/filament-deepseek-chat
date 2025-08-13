@@ -1,0 +1,316 @@
+/* DeepSeek Chat Custom Styles */
+.deepseek-chat-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.deepseek-chat-messages {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow-y: auto;
+    min-height: 50vh;
+    max-height: 60vh;
+    background: linear-gradient(to bottom, #f8fafc, #ffffff, #f8fafc);
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 1.5rem;
+}
+
+.dark .deepseek-chat-messages {
+    background: linear-gradient(to bottom, #0f172a, #1e293b, #0f172a);
+    border-color: #374151;
+}
+
+.deepseek-message {
+    display: flex;
+    gap: 0.75rem;
+    max-width: 56rem;
+}
+
+.deepseek-message.user {
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+.deepseek-message.ai {
+    justify-content: flex-start;
+    margin-right: auto;
+}
+
+.deepseek-message-avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.deepseek-message-avatar.user {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.deepseek-message-avatar.ai {
+    background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+    color: white;
+}
+
+.deepseek-message-bubble {
+    position: relative;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    max-width: 20rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+@media (min-width: 640px) {
+    .deepseek-message-bubble {
+        max-width: 28rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .deepseek-message-bubble {
+        max-width: 32rem;
+    }
+}
+
+.deepseek-message-bubble.user {
+    background-color: #3b82f6;
+    color: white;
+    border-bottom-right-radius: 0.375rem;
+}
+
+.deepseek-message-bubble.ai {
+    background-color: white;
+    color: #1f2937;
+    border: 1px solid #e5e7eb;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.dark .deepseek-message-bubble.ai {
+    background-color: #1f2937;
+    color: #f9fafb;
+    border-color: #374151;
+}
+
+.deepseek-message-content {
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.deepseek-message-content.user {
+    white-space: pre-wrap;
+}
+
+.deepseek-message-content.ai {
+    line-height: 1.6;
+}
+
+/* Prose styling for AI messages */
+.deepseek-message-content.ai p {
+    margin: 0.5rem 0;
+}
+
+.deepseek-message-content.ai p:first-child {
+    margin-top: 0;
+}
+
+.deepseek-message-content.ai p:last-child {
+    margin-bottom: 0;
+}
+
+.deepseek-message-content.ai pre {
+    background-color: #111827;
+    color: #f9fafb;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin: 0.5rem 0;
+    border: 1px solid #374151;
+    overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.deepseek-message-content.ai code {
+    background-color: #f3f4f6;
+    color: #1f2937;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.dark .deepseek-message-content.ai code {
+    background-color: #374151;
+    color: #e5e7eb;
+}
+
+.deepseek-message-content.ai pre code {
+    background-color: transparent;
+    color: #f9fafb;
+    padding: 0;
+    font-size: 0.875rem;
+}
+
+/* Input area */
+.deepseek-chat-input {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.dark .deepseek-chat-input {
+    border-top-color: #374151;
+}
+
+.deepseek-input-wrapper {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+}
+
+/* Loading states */
+.deepseek-loading-dots {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.deepseek-loading-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: #9ca3af;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+.deepseek-loading-dot:nth-child(1) {
+    animation-delay: 0ms;
+}
+
+.deepseek-loading-dot:nth-child(2) {
+    animation-delay: 150ms;
+}
+
+.deepseek-loading-dot:nth-child(3) {
+    animation-delay: 300ms;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.4;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Smooth animations */
+.deepseek-message {
+    transform: translateY(0);
+    transition: all 0.3s ease-out;
+}
+
+.deepseek-message.entering {
+    opacity: 0;
+    transform: translateY(0.5rem);
+}
+
+.deepseek-message.entered {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Scrollbar styling */
+.deepseek-chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.deepseek-chat-messages::-webkit-scrollbar-track {
+    background-color: #f3f4f6;
+}
+
+.dark .deepseek-chat-messages::-webkit-scrollbar-track {
+    background-color: #1f2937;
+}
+
+.deepseek-chat-messages::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 9999px;
+}
+
+.dark .deepseek-chat-messages::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+}
+
+.deepseek-chat-messages::-webkit-scrollbar-thumb:hover {
+    background-color: #9ca3af;
+}
+
+.dark .deepseek-chat-messages::-webkit-scrollbar-thumb:hover {
+    background-color: #6b7280;
+}
+
+/* Empty state */
+.deepseek-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 0;
+    color: #6b7280;
+}
+
+.dark .deepseek-empty-state {
+    color: #9ca3af;
+}
+
+.deepseek-empty-icon {
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1rem;
+    color: #d1d5db;
+}
+
+.dark .deepseek-empty-icon {
+    color: #4b5563;
+}
+
+/* Input/Send layout tweaks */
+.deepseek-textarea {
+    padding: 0.875rem 1rem; /* ~py-3.5 px-4 */
+}
+
+.deepseek-send-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    margin-top: 1rem; /* mt-4 */
+}
+
+.deepseek-send-button {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    border: none;
+    padding: 0.875rem 1.25rem; /* py-3.5 px-5 */
+    border-radius: 0.625rem; /* rounded-lg-ish */
+    min-width: 160px;
+    box-shadow: 0 10px 15px -3px rgba(59,130,246,0.25), 0 4px 6px -4px rgba(59,130,246,0.25);
+}
+
+.deepseek-send-button:hover {
+    filter: brightness(1.05);
+}
+
+.dark .deepseek-send-button {
+    background: linear-gradient(135deg, #60a5fa, #2563eb);
+}

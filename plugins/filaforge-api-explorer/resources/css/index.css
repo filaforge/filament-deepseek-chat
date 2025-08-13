@@ -1,0 +1,9 @@
+.api-explorer-response {
+    & pre {
+        font-family: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Inconsolata, "Roboto Mono", "Noto Sans Mono", "Droid Sans Mono", "Liberation Mono", Menlo, Consolas, monospace;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+}

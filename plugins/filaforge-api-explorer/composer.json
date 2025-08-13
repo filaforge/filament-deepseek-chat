@@ -1,0 +1,27 @@
+{
+  "name": "filaforge/api-explorer",
+  "description": "API Explorer plugin for testing API endpoints similar to Postman",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.1",
+    "filament/filament": "^4.0",
+    "laravel/framework": "^12.0",
+    "guzzlehttp/guzzle": "^7.2",
+    "spatie/laravel-package-tools": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Filaforge\\ApiExplorer\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Filaforge\\ApiExplorer\\Providers\\ApiExplorerServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
