@@ -1,0 +1,6 @@
+/.github export-ignore
+/tests export-ignore
+/plugins/*/tests export-ignore
+/plugins/*/.github export-ignore
+/plugins/*/package.json export-ignore
+/plugins/*/postcss.config.js export-ignore
