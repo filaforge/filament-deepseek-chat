@@ -1,6 +1,41 @@
 # Filaforge System Widget
 
-A Filament v4 dashboard widget plugin for real-time system monitoring, using a unique namespace to avoid collisions.
+A Filament v4 ## Usage
+
+After installation and registration, the "System Monitor" widget automatically appears on your Filament dashboard. The widget displays:
+
+- **System Metrics**: Real-time CPU, memory, and disk usage
+- **Server Information**: Operating system and server details
+- **Performance Indicators**: Visual performance metrics
+- **Resource Monitoring**: Track system resource consumption
+- **Automatic Updates**: Real-time data refresh
+
+The widget is designed to provide a quick overview of your server's health directly from your dashboard.
+
+## Configuration
+
+The plugin works out of the box. You can customize monitoring settings by publishing the configuration:
+
+```bash
+php artisan vendor:publish --tag="system-widget-config"
+```
+
+## Features
+
+- ✅ Real-time system monitoring widget
+- ✅ CPU, memory, and disk tracking
+- ✅ Clean dashboard integration
+- ✅ Automatic data refresh
+- ✅ Responsive design
+- ✅ Performance visualization
+
+---
+
+**Package**: `filaforge/system-widget`  
+**License**: MIT  
+**Requirements**: PHP ^8.1, Laravel ^12, Filament ^4.0 widget plugin for real-time system monitoring, using a unique namespace to avoid collisions.
+
+![Screenshot](screenshot.png)
 
 ## Requirements
 - PHP >= 8.1
@@ -9,12 +44,22 @@ A Filament v4 dashboard widget plugin for real-time system monitoring, using a u
 - symfony/process ^7.0
 
 ## Installation
-- Install via Composer:
-  - In a consuming app: `composer require filaforge/system-widget`
-  - In this monorepo, the root app already maps `plugins/*` as path repositories.
-- The service provider is auto-discovered.
 
-## Register the plugin in your panel
+### Step 1: Install via Composer
+```bash
+composer require filaforge/system-widget
+```
+
+### Step 2: Service Provider Registration
+The service provider is auto-discovered, so no manual registration is required.
+
+### Step 3: Publish Assets (Optional)
+If the plugin includes publishable assets, you can publish them:
+```bash
+php artisan vendor:publish --provider="Filaforge\SystemWidget\SystemWidgetServiceProvider"
+```
+
+### Step 4: Register the plugin in your panel
 ```php
 use Filaforge\SystemWidget\SystemWidgetPlugin;
 use Filament\Panel;
