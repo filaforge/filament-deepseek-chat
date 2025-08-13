@@ -63,7 +63,7 @@
             </x-filament::section>
 
             <!-- Response Panel -->
-            <x-filament::section class="mt-6">
+            <x-filament::section class="space-y-6 mt-2" style="margin-top: 2rem;">
                 <x-slot name="heading">
                     API Response
                 </x-slot>
@@ -84,7 +84,7 @@
                 <div
                     x-load-css="[@js(\Filament\Support\Facades\FilamentAsset::getStyleHref('api-explorer', package: 'filaforge/api-explorer'))]"
                     class="api-explorer-response"
-                >
+                    >
                     @if($response)
                         <pre class="bg-gray-50 dark:bg-gray-900 p-4 text-sm max-h-[32rem] font-mono border">{{ $response }}</pre>
                     @else

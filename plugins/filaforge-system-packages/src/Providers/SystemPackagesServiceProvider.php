@@ -2,8 +2,6 @@
 
 namespace Filaforge\SystemPackages\Providers;
 
-use Filaforge\SystemPackages\Widgets\SystemPackagesWidget;
-use Livewire\Livewire;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -20,7 +18,7 @@ class SystemPackagesServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
-        Livewire::component('filaforge.system-packages.widgets.system-packages-widget', SystemPackagesWidget::class);
+        //
     }
 }
 

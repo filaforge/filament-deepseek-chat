@@ -1,4 +1,37 @@
-## Filaforge System Monitor
+# Filaforge System Monitor
+
+A Filament v4 panel plugin that provides dashboard widgets for real-time system metrics (CPU, memory, disk, etc.).
+
+## Requirements
+- PHP >= 8.1
+- Laravel 12 (illuminate/support ^12)
+- Filament ^4.0
+- symfony/process ^7.0
+
+## Installation
+- Install via Composer:
+  - In a consuming app: `composer require filaforge/system-monitor`
+  - In this monorepo, the root app already maps `plugins/*` as path repositories.
+- The service provider is auto-discovered.
+
+## Register the plugin in your panel
+```php
+use Filaforge\SystemMonitor\SystemMonitorPlugin;
+use Filament\Panel;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        // ...
+        ->plugin(SystemMonitorPlugin::make());
+}
+```
+
+## Usage
+Add the plugin to your panel to expose widgets like “System Monitor” and “System Info” on the dashboard.
+
+---
+Package: `filaforge/system-monitor`## Filaforge System Monitor
 
 Stats overview widgets showing CPU load, memory, and disk usage, plus extra widgets.
 

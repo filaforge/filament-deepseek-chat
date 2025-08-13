@@ -2,7 +2,6 @@
 
 namespace Filaforge\SystemPackages;
 
-use Filaforge\SystemPackages\Widgets\SystemPackagesWidget;
 use Filament\Contracts\Plugin as PluginContract;
 use Filament\Panel;
 
@@ -20,7 +19,7 @@ class SystemPackagesPlugin implements PluginContract
 
     public function register(Panel $panel): void
     {
-    $panel->pages([
+        $panel->pages([
             \Filaforge\SystemPackages\Pages\SystemPackagesPage::class,
         ]);
     }
