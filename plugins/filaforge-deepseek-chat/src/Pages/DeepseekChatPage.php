@@ -21,7 +21,7 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-chat-bubble-oval-left-ellipsis';
     protected string $view = 'deepseek-chat::pages.chat';
     protected static ?string $navigationLabel = 'DeepSeek Chat';
-    protected static \UnitEnum|string|null $navigationGroup = null;
+    protected static \UnitEnum|string|null $navigationGroup = 'System';
     protected static ?int $navigationSort = 10;
     protected static ?string $title = 'DeepSeek Chat';
 

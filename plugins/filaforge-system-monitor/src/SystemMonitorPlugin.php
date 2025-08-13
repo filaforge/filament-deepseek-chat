@@ -26,7 +26,6 @@ class SystemMonitorPlugin implements PluginContract
         $panel->widgets([
             SystemMonitorWidget::class,
             SystemInfoWidget::class,
-            FilamentPackagesWidget::class,
         ]);
     }
 

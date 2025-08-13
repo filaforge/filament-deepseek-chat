@@ -16,7 +16,10 @@ class SetApiKey
                 Forms\Components\Textarea::make('deepseek_api_key')
                     ->label('DeepSeek API Key')
                     ->rows(4)
-                    ->required(),
+                    ->required()
+                    ->extraInputAttributes(['class' => 'min-h-[100px]'])
+                    ->extraAttributes(['class' => 'w-full', 'min-w-[100%]' => true, 'style' => 'mix-width:100%']),
+
             ])
             ->action(function (array $data): void {
                 $user = auth()->user();

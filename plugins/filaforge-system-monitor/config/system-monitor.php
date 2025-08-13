@@ -2,7 +2,7 @@
 
 return [
     // Polling interval in seconds for live updates
-    'refresh_interval_seconds' => env('FILAFORGE_SYSTEM_MONITOR_INTERVAL', 5),
+    'refresh_interval_seconds' => env('FILAFORGE_SYSTEM_MONITOR_INTERVAL', 60),
 
     // Number of top CPU processes to display
     'top_processes' => 5,

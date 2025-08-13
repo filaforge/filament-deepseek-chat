@@ -1,5 +1,5 @@
 <x-filament::card>
-    <div wire:poll.{{ config('filament-system-monitor.refresh_interval_seconds') }}s="updateMetrics">
+    <div>
         <!-- System Information Stats -->
         <div class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="flex items-center gap-3 p-4 rounded-xl bg-white dark:bg-gray-900 shadow border border-gray-100 dark:border-gray-800">

@@ -10,13 +10,13 @@
 
 /* Hide section header when wrapping the chat container */
 .fi-section:has(.deepseek-chat-container) .fi-section-header {
-    display: none !important;
+    display: block !important;
 }
 
 /* Hide Filament page header (the big page title/header bar) on this page only */
 .fi-page:has(.deepseek-chat-container) .fi-header,
 .fi-page:has(.deepseek-chat-container) .fi-page-header-main-ctn > .fi-header {
-    display: none !important;
+    display: block !important;
 }
 
 /* Remove section chrome radius so the inner chat container radius is visible */

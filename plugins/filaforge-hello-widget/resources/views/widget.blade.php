@@ -37,7 +37,8 @@
 
                     <div
                         class="hwc-messages px-2 py-2 space-y-0 max-h-96 overflow-y-auto"
-                        wire:poll.2s
+                        {{-- disabled extra polling to prevent duplicate requests --}}
+                        {{-- wire:poll.2s --}}
                         x-ref="messages"
                         @scroll="autoScroll = ($event.target.scrollTop + $event.target.clientHeight >= $event.target.scrollHeight - 12)"
                     >

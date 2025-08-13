@@ -23,9 +23,6 @@ class SystemMonitorWidget extends BaseWidget
                 ->chart([
                     min(($metrics['cpu_load'] ?? 0) * 50, 100), // Scale for visualization
                     max(100 - (($metrics['cpu_load'] ?? 0) * 50), 0)
-                ])
-                ->extraAttributes([
-                    'wire:poll.5s' => '',
                 ]),
         ];
 
@@ -39,9 +36,6 @@ class SystemMonitorWidget extends BaseWidget
                 ->chart([
                     $memPercent,
                     100 - $memPercent
-                ])
-                ->extraAttributes([
-                    'wire:poll.5s' => '',
                 ]);
         }
 
@@ -55,9 +49,6 @@ class SystemMonitorWidget extends BaseWidget
                 ->chart([
                     $diskPercent,
                     100 - $diskPercent
-                ])
-                ->extraAttributes([
-                    'wire:poll.5s' => '',
                 ]);
         }
 

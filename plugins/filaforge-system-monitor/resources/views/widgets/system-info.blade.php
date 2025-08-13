@@ -11,7 +11,7 @@
             Comprehensive system status and health checks
         </x-slot>
 
-        <div wire:poll.30s class="space-y-4">
+    <div class="space-y-4">
             @php
                 $healthyCount = collect($this->getViewData()['systemChecks'])->where('status.status', 'healthy')->count();
                 $totalCount = count($this->getViewData()['systemChecks']);

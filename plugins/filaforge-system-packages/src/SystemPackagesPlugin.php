@@ -20,8 +20,8 @@ class SystemPackagesPlugin implements PluginContract
 
     public function register(Panel $panel): void
     {
-        $panel->widgets([
-            SystemPackagesWidget::class,
+    $panel->pages([
+            \Filaforge\SystemPackages\Pages\SystemPackagesPage::class,
         ]);
     }
 

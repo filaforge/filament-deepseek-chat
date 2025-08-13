@@ -35,7 +35,7 @@ class DatabaseViewer extends Page implements HasForms, HasTable
 
     protected static ?string $navigationLabel = 'Database Viewer';
 
-    protected static ?string $title = null;
+    protected static ?string $title = 'Database Viewer';
 
     protected static string | \UnitEnum | null $navigationGroup = 'System';
 
@@ -75,7 +75,7 @@ class DatabaseViewer extends Page implements HasForms, HasTable
 
     public function getHeading(): \Illuminate\Contracts\Support\Htmlable|string
     {
-        return '';
+        return 'Database Viewer';
     }
 
     public function mount(): void

@@ -3,7 +3,7 @@
         heading="Top Processes"
         description="Processes with highest CPU usage"
     >
-        <div wire:poll.10s class="overflow-hidden">
+    <div class="overflow-hidden">
             @if(count($this->getViewData()['processes']) > 0)
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">

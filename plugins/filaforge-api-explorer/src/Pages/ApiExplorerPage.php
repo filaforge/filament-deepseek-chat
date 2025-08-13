@@ -20,6 +20,7 @@ class ApiExplorerPage extends Page implements \Filament\Forms\Contracts\HasForms
     protected string $view = 'api-explorer::pages.api-explorer';
     protected static ?string $title = 'API Explorer';
     protected static ?string $navigationLabel = 'API Explorer';
+    protected static string | \UnitEnum | null $navigationGroup = 'System';
 
     public ?array $data = [];
     public string $response = '';
