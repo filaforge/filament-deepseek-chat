@@ -18,7 +18,7 @@ class DatabaseQuery extends Page implements HasForms
 
     protected static ?string $navigationLabel = 'Database Query';
     protected static ?string $title = 'Database Query';
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-command-line';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-magnifying-glass-circle';
     protected static string | \UnitEnum | null $navigationGroup = 'System';
 
     protected string $view = 'database-query::pages.database-query';

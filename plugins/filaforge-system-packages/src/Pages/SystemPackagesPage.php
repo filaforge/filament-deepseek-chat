@@ -86,12 +86,27 @@ class SystemPackagesPage extends Page implements HasTable
 					->label('Description')
 					->searchable()
 					->wrap()
-					->limit(100)
+					->limit(24)
 					->formatStateUsing(fn (?string $state) => $state && trim($state) !== '' ? $state : 'No description provided')
-					->tooltip(function (array $record) {
-						$desc = (string) ($record['description'] ?? '');
-						return strlen($desc) > 100 ? $desc : null;
+					->tooltip(function ($record) {
+						$desc = (string) data_get($record, 'description', '');
+						return strlen($desc) > 24 ? $desc : null;
 					}),
+
+				Tables\Columns\TextColumn::make('packagist')
+					->label('Packagist')
+					->icon('heroicon-m-arrow-top-right-on-square')
+					->state(fn () => 'Open')
+					->url(fn ($record) => ($name = (string) data_get($record, 'name')) ? "https://packagist.org/packages/{$name}" : null)
+					->openUrlInNewTab(),
+
+				Tables\Columns\TextColumn::make('github')
+					->label('GitHub')
+					->icon('heroicon-m-arrow-top-right-on-square')
+					->state(fn () => 'Open')
+					->visible(fn ($record) => (bool) data_get($record, 'github_url'))
+					->url(fn ($record) => (string) data_get($record, 'github_url'))
+					->openUrlInNewTab(),
 			])
 			->filters([
 				Tables\Filters\SelectFilter::make('vendor')
@@ -321,7 +336,7 @@ class SystemPackagesPage extends Page implements HasTable
 		if ($name === 'filament/filament' || str_starts_with($name, 'filament/')) {
 			return 'Filament';
 		}
-		// Laravel core packages
+		// Laravel family packages
 		if ($name === 'laravel/framework' || str_starts_with($name, 'laravel/') || str_starts_with($name, 'illuminate/')) {
 			return 'Laravel';
 		}
