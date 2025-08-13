@@ -4,6 +4,7 @@ namespace Filaforge\DeepseekChat\Providers;
 
 use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
+use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -18,7 +19,12 @@ class DeepseekChatServiceProvider extends PackageServiceProvider
             ->hasConfigFile('deepseek-chat')
             ->hasViews()
             ->hasTranslations()
-            ->hasMigrations();
+            ->hasMigrations()
+            ->hasInstallCommand(function (InstallCommand $command) {
+                $command
+                    ->publishConfigFile()
+                    ->askToRunMigrations();
+            });
     }
 
     public function packageBooted(): void
