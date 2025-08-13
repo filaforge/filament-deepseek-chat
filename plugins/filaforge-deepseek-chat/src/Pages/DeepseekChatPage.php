@@ -3,7 +3,7 @@
 namespace Filaforge\DeepseekChat\Pages;
 
 use Filament\Pages\Page;
-use Filament\Tables; 
+use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Actions\Action;
@@ -287,7 +287,7 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
 
         $this->messages[] = ['role' => 'user', 'content' => $content];
         $this->userInput = '';
-        
+
         // Emit event for frontend typing indicator
         $this->dispatch('messageSent');
 
@@ -302,7 +302,7 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
 
         try {
             $response = Http::withToken($apiKey)
-                ->timeout(30)
+                ->timeout((int) config('deepseek-chat.timeout', 60))
                 ->post($base.'/v1/chat/completions', [
                     'model' => 'deepseek-chat',
                     'messages' => array_map(fn($m) => ['role' => $m['role'], 'content' => $m['content']], $this->messages),
@@ -383,7 +383,7 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
     protected function getHeaderActions(): array
     {
         return [
-            // Keep the action registered but hidden, so it can be mounted from the body
+            // Keep registered but hidden; UI buttons live in the page body
             SetApiKey::make()->hidden(),
         ];
     }

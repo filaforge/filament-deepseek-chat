@@ -1,10 +1,9 @@
 <x-filament-panels::page class="deepseek-chat-page">
     <x-filament::section>
 
-        <div 
+        <div
             class="deepseek-chat-container"
             x-data="{
-                loading: false,
                 typing: false,
                 autoScroll: true,
                 messageSent: false,
@@ -14,20 +13,21 @@
                 showChatsTable: false,
                 init() {
                     this.scrollToBottom();
-                    
+
                     // Listen for Livewire events
                     $wire.on('messageSent', () => {
-                        this.loading = true;
                         this.messageSent = true;
                         this.typing = false;
                         // Remove optimistic bubble once server-rendered message arrives
                         this.showOptimisticUserMessage = false;
                         this.optimisticMessage = '';
-                        this.scrollToBottom();
+                        // Scroll down a bit more to create space for the loading spinner
+                        setTimeout(() => {
+                            this.scrollDownExtra();
+                        }, 100);
                     });
-                    
+
                     $wire.on('messageReceived', () => {
-                        this.loading = false;
                         this.messageSent = false;
                         this.typing = false;
                         this.showOptimisticUserMessage = false;
@@ -37,7 +37,6 @@
                 },
                 sendMessage() {
                     if ($wire.userInput?.trim()) {
-                        this.loading = true;
                         this.messageSent = true;
                         $wire.send();
                     }
@@ -50,31 +49,43 @@
                         }
                     });
                 },
+                scrollDownExtra() {
+                    this.$nextTick(() => {
+                        const messagesContainer = this.$refs.messages;
+                        if (messagesContainer) {
+                            // Scroll down extra to create much more space for the centered spinner
+                            messagesContainer.scrollTop = messagesContainer.scrollHeight + 400;
+                        }
+                    });
+                },
                 handleKeydown(event) {
-                    if (event.ctrlKey && event.key === 'Enter') {
+                    if (event.key === 'Enter') {
+                        if (event.ctrlKey) {
+                            return; // allow newline
+                        }
                         event.preventDefault();
                         this.sendMessage();
                     }
                 }
             }"
-            :data-loading="loading ? 'true' : null"
-            @deepseek-send.window="loading = true; messageSent = true; scrollToBottom()"
+            @deepseek-send.window="messageSent = true; scrollToBottom()"
             @deepseek-optimistic.window="optimisticMessage = $event.detail.text; showOptimisticUserMessage = true; scrollToBottom()"
+            @deepseek-scroll-extra.window="scrollDownExtra()"
             @toggle-chats.window="showChatsTable = !showChatsTable"
             @hide-chats.window="showChatsTable = false"
             x-load-css="[@js(\Filament\Support\Facades\FilamentAsset::getStyleHref('deepseek-chat', package: 'filaforge/deepseek-chat'))]"
         >
     <!-- Messages Area -->
-        <div 
+        <div
             class="deepseek-chat-messages deepseek-chat-scroll"
             x-ref="messages"
             x-show="!showChatsTable"
             @scroll="autoScroll = ($event.target.scrollTop + $event.target.clientHeight >= $event.target.scrollHeight - 10)"
         >
             @if(empty($messages))
-                <div x-show="!loading || !messageSent" x-cloak class="deepseek-empty-state">
-                    <x-filament::icon 
-                        icon="heroicon-o-chat-bubble-left-right" 
+                <div wire:loading.remove wire:target="send" class="deepseek-empty-state">
+                    <x-filament::icon
+                        icon="heroicon-o-chat-bubble-left-right"
                         class="deepseek-empty-icon"
                     />
                     <h3 class="text-lg font-medium mb-2 mt-2">Start a conversation</h3>
@@ -85,7 +96,7 @@
                     @php
                         $isUser = $message['role'] === 'user';
                     @endphp
-                    <div 
+                    <div
                         class="deepseek-message {{ $isUser ? 'user' : 'ai' }}"
                         x-data="{ entered: false }"
                         x-init="setTimeout(() => entered = true, {{ $index * 100 }})"
@@ -101,21 +112,29 @@
                             </div>
                         @else
                             <div class="deepseek-message-avatar ai">
-                                DS
+                                @php($aiIcon = public_path('vendor/filaforge/deepseek-chat/icon.png'))
+                                @if (file_exists($aiIcon))
+                                    <img src="{{ asset('vendor/filaforge/deepseek-chat/icon.png') }}" alt="AI" class="deepseek-ai-avatar-img" />
+                                @else
+                                    <x-filament::icon
+                                        icon="heroicon-s-cpu-chip"
+                                        class="deepseek-ai-avatar-icon"
+                                    />
+                                @endif
                             </div>
                             <div class="deepseek-message-bubble ai">
                                 <div class="deepseek-message-content ai">
-                                    {!! Str::markdown($message['content']) !!}
+                                    {!! nl2br(e($message['content'])) !!}
                                 </div>
                             </div>
                         @endif
                     </div>
                 @endforeach
             @endif
-            
+
             <!-- Optimistic user message (shows immediately on the right, at the bottom) -->
             <template x-if="showOptimisticUserMessage && optimisticMessage">
-                <div 
+                <div
                     x-cloak
                     x-transition:enter="transition ease-out duration-300"
                     x-transition:enter-start="opacity-0 transform translate-y-2"
@@ -131,14 +150,18 @@
                 </div>
             </template>
 
-            <!-- Loading indicator: centered spinner (no AI avatar) -->
-            <template x-if="loading">
-                <div x-cloak class="deepseek-center-loader">
-                    <div class="deepseek-yellow-spinner"></div>
-                </div>
-            </template>
+            <!-- Loading indicator: positioned in center of chat area when sending -->
+            <div
+                wire:target="send"
+                wire:loading.delay.class="is-loading"
+                id="spinner-container"
+                class="deepseek-center-loader"
+                aria-hidden="true"
+            >
+                <div class="deepseek-yellow-spinner"></div>
+            </div>
         </div>
-        
+
         <!-- Chats Table (swap view) -->
         <div x-show="showChatsTable" x-cloak class="p-4">
             {{ $this->table }}
@@ -153,7 +176,10 @@
                 draft: '',
                 showTableLocal: false,
                 handleKeydown(e) {
-                    if (e.ctrlKey && e.key === 'Enter') {
+                    if (e.key === 'Enter') {
+                        if (e.ctrlKey) {
+                            return; // newline
+                        }
                         e.preventDefault();
                         if (this.draft?.trim()) {
                             this.submit();
@@ -166,16 +192,23 @@
                         this.showTableLocal = false;
                         window.dispatchEvent(new CustomEvent('hide-chats'));
                     }
-                    // Show loader immediately and keep sent message visible
-                    this.$dispatch('deepseek-send');
+
                     // Show optimistic user message immediately on the right
                     this.$dispatch('deepseek-optimistic', { text: this.draft });
-                    // Pass the message to Livewire, then clear the textarea
-                    $wire.set('userInput', this.draft);
-                    $wire.send();
+
+                    // Scroll extra space before triggering loading spinner
+                    window.dispatchEvent(new CustomEvent('deepseek-scroll-extra'));
+
+                    // Pass the message to Livewire after a tiny delay to allow scroll
+                    const textToSend = this.draft;
                     this.draft = '';
-            // Remove focus/outline from textarea until user re-selects
-            this.$refs.input && this.$refs.input.blur();
+                    setTimeout(() => {
+                        $wire.set('userInput', textToSend);
+                        $wire.send();
+                    }, 40);
+
+                    // Remove focus from textarea
+                    this.$refs.input && this.$refs.input.blur();
                 }
              }"
              @toggle-chats.window="showTableLocal = !showTableLocal"
@@ -190,14 +223,14 @@
                             x-ref="input"
                             x-model="draft"
                             @keydown="handleKeydown($event)"
-                            placeholder="Type your message here... Ctrl + Enter to send message"
+                            placeholder="Type your message here... Enter to send, Ctrl + Enter for new line"
                             rows="3"
                             :disabled="showTableLocal"
                             style="overflow: hidden; height: 3rem; min-height: 3rem; min-width: 100%; box-shadow: none !important; outline: none !important;"
                         ></textarea>
                     </x-filament::input.wrapper>
                 </div>
-                
+
                 <!-- Actions Row -->
             <div class="deepseek-send-row" style="padding: 0; background: transparent; border-radius: 12px; justify-content: space-between;">
                 <!-- Left group: New Chat + Set API Key -->

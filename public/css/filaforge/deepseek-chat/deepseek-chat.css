@@ -42,6 +42,7 @@
 }
 
 .deepseek-chat-messages {
+    position: relative;
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
@@ -51,6 +52,8 @@
     border-radius: 0.75rem;
     border: none;
     margin-bottom: 1rem;
+    flex: 1; /* Take up available height */
+    min-height: 0; /* Allow flexbox to shrink */
 }
 
 .dark .deepseek-chat-messages {
@@ -92,8 +95,14 @@
 }
 
 .deepseek-message-avatar.ai {
-    background-color: #a3a3a3;
+    background-color: #6366f1;
     color: white;
+}
+.deepseek-ai-avatar-img {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    object-fit: cover;
 }
 
 .deepseek-message-bubble {
@@ -414,9 +423,9 @@ button.deepseek-send-button:disabled,
 
 .deepseek-send-button:hover:not(:disabled),
 .deepseek-send-button:focus:not(:disabled),
-.fi-btn.deepseek-send-button:hover:not(:disabled), 
+.fi-btn.deepseek-send-button:hover:not(:disabled),
 .fi-btn.deepseek-send-button:focus:not(:disabled),
-button.fi-btn.deepseek-send-button:hover:not(:disabled), 
+button.fi-btn.deepseek-send-button:hover:not(:disabled),
 button.fi-btn.deepseek-send-button:focus:not(:disabled),
 button.deepseek-send-button:hover:not(:disabled),
 button.deepseek-send-button:focus:not(:disabled),
@@ -452,9 +461,9 @@ button.deepseek-send-button:focus:not(:disabled),
 
 .dark .deepseek-send-button:hover:not(:disabled),
 .dark .deepseek-send-button:focus:not(:disabled),
-.dark .fi-btn.deepseek-send-button:hover:not(:disabled), 
+.dark .fi-btn.deepseek-send-button:hover:not(:disabled),
 .dark .fi-btn.deepseek-send-button:focus:not(:disabled),
-.dark button.fi-btn.deepseek-send-button:hover:not(:disabled), 
+.dark button.fi-btn.deepseek-send-button:hover:not(:disabled),
 .dark button.fi-btn.deepseek-send-button:focus:not(:disabled),
 .dark button.deepseek-send-button:hover:not(:disabled),
 .dark button.deepseek-send-button:focus:not(:disabled),
@@ -466,30 +475,36 @@ button.deepseek-send-button:focus:not(:disabled),
 
 /* Yellow Loaders */
 .deepseek-center-loader {
-    display: flex;
+    display: none;
+    width: 100%;
+    min-height: 8rem;
     justify-content: center !important;
     align-items: center !important;
-    height: 40vh !important;
-    width: 100% !important;
+    background: transparent;
+    margin-top: 0.25rem;
 }
 
-/* Respect Alpine's x-show toggling; don't force display */
+.deepseek-center-loader.is-loading { display: flex !important; }
+
+.dark .deepseek-center-loader { background: transparent; }
+
+/* Respect visibility toggling via classes; don't force display */
 
 .deepseek-yellow-spinner {
     width: 80px !important;
     height: 80px !important;
-    border: 6px solid #fbbf24 !important;
-    border-top: 6px solid #f59e0b !important;
+    border: 6px solid #6366f1 !important;
+    border-top: 6px solid #4f46e5 !important;
     border-radius: 50% !important;
     animation: deepseekSpin 1.2s linear infinite !important;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
 }
 
 .deepseek-yellow-spinner-small {
     width: 24px !important;
     height: 24px !important;
-    border: 3px solid #fbbf24 !important;
-    border-top: 3px solid #f59e0b !important;
+    border: 3px solid #6366f1 !important;
+    border-top: 3px solid #4f46e5 !important;
     border-radius: 50% !important;
     animation: deepseekSpin 1.2s linear infinite !important;
     margin: 0 auto !important;
@@ -501,14 +516,14 @@ button.deepseek-send-button:focus:not(:disabled),
 }
 
 .dark .deepseek-yellow-spinner {
-    border-color: #fbbf24 !important;
-    border-top-color: #f59e0b !important;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4) !important;
+    border-color: #6366f1 !important;
+    border-top-color: #4f46e5 !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4) !important;
 }
 
 .dark .deepseek-yellow-spinner-small {
-    border-color: #fbbf24 !important;
-    border-top-color: #f59e0b !important;
+    border-color: #6366f1 !important;
+    border-top-color: #4f46e5 !important;
 }
 
 /* Conversations modal list styling */
@@ -545,3 +560,5 @@ button.deepseek-send-button:focus:not(:disabled),
 }
 .deepseek-conv-list .conv-actions { opacity: .6; }
 .deepseek-conv-list .conv-row:hover .conv-actions { opacity: 1; }
+
+
