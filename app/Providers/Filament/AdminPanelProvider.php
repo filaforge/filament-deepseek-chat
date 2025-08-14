@@ -64,7 +64,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugin(
                 SpatieTranslatablePlugin::make()
-                    ->defaultLocales(['en', 'es', 'nl']),
+                    ->defaultLocales(['en', 'es', 'nl'])
             )
             ->plugin(\Filaforge\ApiExplorer\ApiExplorerPlugin::make())
             ->plugin(\Filaforge\DatabaseQuery\DatabaseQueryPlugin::make())
@@ -77,8 +77,9 @@ class AdminPanelProvider extends PanelProvider
             ->plugin(\Filaforge\TerminalConsole\TerminalConsolePlugin::make())
             ->plugin(\Filaforge\UserManager\UserManagerPlugin::make())
             ->plugin(\Awcodes\QuickCreate\QuickCreatePlugin::make())
-            ->spa()
-            ->colors([
+            ->spa();
+
+            return $panel->colors([
                 'primary' => Color::Blue,
             ]);
     }

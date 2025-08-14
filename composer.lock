@@ -142,7 +142,7 @@
         },
         {
             "name": "awcodes/filament-quick-create",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "plugins_dev/filament-quick-create",
@@ -1274,11 +1274,11 @@
         },
         {
             "name": "filaforge/api-explorer",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "plugins/filaforge-api-explorer",
-                "reference": "4e181c0ba904ff44ca5e144bebbed8fea92addba"
+                "reference": "4f8c3d732ccadafe000da8862c8ef744d7549b07"
             },
             "require": {
                 "filament/filament": "^4.0",
@@ -1303,7 +1303,22 @@
             "license": [
                 "MIT"
             ],
+            "authors": [
+                {
+                    "name": "Filaforge"
+                }
+            ],
             "description": "API Explorer plugin for testing API endpoints similar to Postman",
+            "homepage": "https://github.com/filaforge/api-explorer",
+            "keywords": [
+                "Filament",
+                "Laravel",
+                "Platform"
+            ],
+            "support": {
+                "email": "filaforger@gmail.com",
+                "source": "https://github.com/filaforge/api-explorer"
+            },
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1311,11 +1326,11 @@
         },
         {
             "name": "filaforge/database-query",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "plugins/filaforge-database-query",
-                "reference": "12ebc22f580571ea050a29c69980873c2c684f7a"
+                "reference": "5039959d9cce1c8ea444292fff4a1f99012082e6"
             },
             "require": {
                 "filament/filament": "^4.0",
@@ -1339,7 +1354,22 @@
             "license": [
                 "MIT"
             ],
+            "authors": [
+                {
+                    "name": "Filaforge"
+                }
+            ],
             "description": "Database query plugin: SQL query explorer",
+            "homepage": "https://github.com/filaforge/database-query",
+            "keywords": [
+                "Filament",
+                "Laravel",
+                "Platform"
+            ],
+            "support": {
+                "email": "filaforger@gmail.com",
+                "source": "https://github.com/filaforge/database-query"
+            },
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1347,11 +1377,11 @@
         },
         {
             "name": "filaforge/database-viewer",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "plugins/filaforge-database-viewer",
-                "reference": "bdde78c125bd9558cfad3bf1d68048a07989b511"
+                "reference": "9f04a1b2ec6c2946c3aa5946007cd5ee97aaa323"
             },
             "require": {
                 "filament/filament": "^4.0",
@@ -1375,7 +1405,22 @@
             "license": [
                 "MIT"
             ],
+            "authors": [
+                {
+                    "name": "Filaforge"
+                }
+            ],
             "description": "Database viewer plugin: Database viewer with table browser and data explorer",
+            "homepage": "https://github.com/filaforge/database-viewer",
+            "keywords": [
+                "Filament",
+                "Laravel",
+                "Platform"
+            ],
+            "support": {
+                "email": "filaforger@gmail.com",
+                "source": "https://github.com/filaforge/database-viewer"
+            },
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1387,7 +1432,7 @@
             "dist": {
                 "type": "path",
                 "url": "plugins/filaforge-deepseek-chat",
-                "reference": "874c5fe93d151370f9955ed279007287d9b6de4e"
+                "reference": "6c876bcd44ef222064b4453bb705109625e663a3"
             },
             "require": {
                 "filament/filament": "^4.0",
@@ -1412,7 +1457,22 @@
             "license": [
                 "MIT"
             ],
+            "authors": [
+                {
+                    "name": "Filaforge"
+                }
+            ],
             "description": "Filament panel plugin providing a DeepSeek chat page with admin-manageable API key.",
+            "homepage": "https://github.com/filaforge/deepseek-chat",
+            "keywords": [
+                "Filament",
+                "Laravel",
+                "Platform"
+            ],
+            "support": {
+                "email": "filaforger@gmail.com",
+                "source": "https://github.com/filaforge/deepseek-chat"
+            },
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1420,11 +1480,11 @@
         },
         {
             "name": "filaforge/hello-widget",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "plugins/filaforge-hello-widget",
-                "reference": "a92204ed5f2467877187775c6b5562d3e841069e"
+                "reference": "53b5196aa799daf8df0337114064c3c0530e8c7f"
             },
             "require": {
                 "filament/filament": "^4.0",
@@ -1448,7 +1508,22 @@
             "license": [
                 "MIT"
             ],
+            "authors": [
+                {
+                    "name": "Filaforge"
+                }
+            ],
             "description": "Example Filament panel plugin: Hello Widget",
+            "homepage": "https://github.com/filaforge/hello-widget",
+            "keywords": [
+                "Filament",
+                "Laravel",
+                "Platform"
+            ],
+            "support": {
+                "email": "filaforger@gmail.com",
+                "source": "https://github.com/filaforge/hello-widget"
+            },
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1456,11 +1531,11 @@
         },
         {
             "name": "filaforge/system-monitor",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "plugins/filaforge-system-monitor",
-                "reference": "4d797a0d75f21fa0412ad15cbcff83bdaf2f4236"
+                "reference": "6c166cde36820dc36fbc5e5bc648bfc6e8c84dac"
             },
             "require": {
                 "filament/filament": "^4.0",
@@ -1485,7 +1560,22 @@
             "license": [
                 "MIT"
             ],
+            "authors": [
+                {
+                    "name": "Filaforge"
+                }
+            ],
             "description": "System monitor plugin widgets for Filament v4",
+            "homepage": "https://github.com/filaforge/system-monitor",
+            "keywords": [
+                "Filament",
+                "Laravel",
+                "Platform"
+            ],
+            "support": {
+                "email": "filaforger@gmail.com",
+                "source": "https://github.com/filaforge/system-monitor"
+            },
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1493,11 +1583,11 @@
         },
         {
             "name": "filaforge/system-packages",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "plugins/filaforge-system-packages",
-                "reference": "8e1649173e9be153c6f53485e069e1262d1932a1"
+                "reference": "21272137a7ee1e9f1fcc5700fa45629fe4479573"
             },
             "require": {
                 "filament/filament": "^4.0",
@@ -1521,7 +1611,22 @@
             "license": [
                 "MIT"
             ],
+            "authors": [
+                {
+                    "name": "Filaforge"
+                }
+            ],
             "description": "System Packages widget: list all Composer packages in a Filament table",
+            "homepage": "https://github.com/filaforge/system-packages",
+            "keywords": [
+                "Filament",
+                "Laravel",
+                "Platform"
+            ],
+            "support": {
+                "email": "filaforger@gmail.com",
+                "source": "https://github.com/filaforge/system-packages"
+            },
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1529,11 +1634,11 @@
         },
         {
             "name": "filaforge/system-tools",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "plugins/filaforge-system-tools",
-                "reference": "bb1d1d49ca20297ae1cc56b11c83dd7cd0f7337a"
+                "reference": "9f4a6ba496722ec1cc1d620110f7b80242ef46c8"
             },
             "require": {
                 "filament/filament": "^4.0",
@@ -1557,7 +1662,22 @@
             "license": [
                 "MIT"
             ],
+            "authors": [
+                {
+                    "name": "Filaforge"
+                }
+            ],
             "description": "System tools plugin",
+            "homepage": "https://github.com/filaforge/system-tools",
+            "keywords": [
+                "Filament",
+                "Laravel",
+                "Platform"
+            ],
+            "support": {
+                "email": "filaforger@gmail.com",
+                "source": "https://github.com/filaforge/system-tools"
+            },
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1565,11 +1685,11 @@
         },
         {
             "name": "filaforge/system-widget",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "plugins/filaforge-system-widget",
-                "reference": "4c18fd631b26445c75fb8a4ba2ed479c869126f9"
+                "reference": "265381a96ebfe8f4aeb12a3ffac031f4093f54a7"
             },
             "require": {
                 "filament/filament": "^4.0",
@@ -1594,7 +1714,22 @@
             "license": [
                 "MIT"
             ],
+            "authors": [
+                {
+                    "name": "Filaforge"
+                }
+            ],
             "description": "Filament v4 dashboard widget for real-time system monitoring",
+            "homepage": "https://github.com/filaforge/system-widget",
+            "keywords": [
+                "Filament",
+                "Laravel",
+                "Platform"
+            ],
+            "support": {
+                "email": "filaforger@gmail.com",
+                "source": "https://github.com/filaforge/system-widget"
+            },
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1602,18 +1737,28 @@
         },
         {
             "name": "filaforge/terminal-console",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "plugins/filaforge-terminal-console",
-                "reference": "1940bbfd7eacb5363adc35e7a299755db9e953e4"
+                "reference": "e17ef59868838f3fe357d5179ee24aebfc581f34"
             },
             "require": {
-                "filament/filament": "^4.0",
-                "illuminate/support": "^12.0",
-                "php": ">=8.1",
+                "filament/filament": "^3.0 || ^4.0",
+                "illuminate/support": "^10.0 || ^11.0 || ^12.0",
+                "php": "^8.1",
                 "spatie/laravel-package-tools": "^1.15",
-                "symfony/process": "^7.0"
+                "symfony/process": "^6.0 || ^7.0"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^7.0 || ^8.0",
+                "orchestra/testbench": "^8.0 || ^9.0",
+                "pestphp/pest": "^2.0",
+                "pestphp/pest-plugin-arch": "^2.0",
+                "pestphp/pest-plugin-laravel": "^2.0",
+                "phpstan/phpstan": "^1.10",
+                "phpstan/phpstan-phpunit": "^1.3"
             },
             "type": "library",
             "extra": {
@@ -1628,10 +1773,71 @@
                     "Filaforge\\TerminalConsole\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "Filaforge\\TerminalConsole\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "post-autoload-dump": [
+                    "@composer run prepare"
+                ],
+                "clear": [
+                    "@php vendor/bin/testbench package:purge-skeleton --ansi"
+                ],
+                "prepare": [
+                    "@php vendor/bin/testbench package:discover --ansi"
+                ],
+                "build": [
+                    "@php vendor/bin/testbench workbench:build --ansi"
+                ],
+                "start": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "@composer run build",
+                    "@php vendor/bin/testbench serve"
+                ],
+                "analyse": [
+                    "vendor/bin/phpstan analyse"
+                ],
+                "test": [
+                    "vendor/bin/pest"
+                ],
+                "test-coverage": [
+                    "vendor/bin/pest --coverage"
+                ],
+                "format": [
+                    "vendor/bin/pint"
+                ]
+            },
             "license": [
                 "MIT"
             ],
-            "description": "Terminal Console plugin: run allowlisted commands from a Filament page",
+            "authors": [
+                {
+                    "name": "Filaforge",
+                    "email": "filaforger@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A powerful Filament panel plugin that provides a browser-based terminal console with command presets, security allowlists, and real-time execution capabilities.",
+            "homepage": "https://github.com/filaforge/terminal-console",
+            "keywords": [
+                "admin",
+                "command",
+                "console",
+                "filament",
+                "laravel",
+                "panel",
+                "shell",
+                "terminal",
+                "xterm"
+            ],
+            "support": {
+                "email": "filaforger@gmail.com",
+                "source": "https://github.com/filaforge/terminal-console",
+                "issues": "https://github.com/filaforge/terminal-console/issues",
+                "docs": "https://github.com/filaforge/terminal-console#readme"
+            },
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -1639,11 +1845,11 @@
         },
         {
             "name": "filaforge/user-manager",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "plugins/filaforge-user-manager",
-                "reference": "6a3a7c2625146e29a6b701cb440d77093cbc5bcf"
+                "reference": "70eb40b993dd4720617e7217de3175f7d9464e39"
             },
             "require": {
                 "filament/filament": "^4.0",
@@ -1667,7 +1873,22 @@
             "license": [
                 "MIT"
             ],
+            "authors": [
+                {
+                    "name": "Filaforge"
+                }
+            ],
             "description": "User manager plugin: Manage users and generate fake users",
+            "homepage": "https://github.com/filaforge/user-manager",
+            "keywords": [
+                "Filament",
+                "Laravel",
+                "Platform"
+            ],
+            "support": {
+                "email": "filaforger@gmail.com",
+                "source": "https://github.com/filaforge/user-manager"
+            },
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -2914,16 +3135,16 @@
         },
         {
             "name": "lara-zeus/spatie-translatable",
-            "version": "1.0.0-beta2",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lara-zeus/spatie-translatable.git",
-                "reference": "72e3adefc71fef35eea8619ce4ca48340239977b"
+                "reference": "d8dd00de3d2f5e9ebbe8901bdeefcc0494f4d7ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lara-zeus/spatie-translatable/zipball/72e3adefc71fef35eea8619ce4ca48340239977b",
-                "reference": "72e3adefc71fef35eea8619ce4ca48340239977b",
+                "url": "https://api.github.com/repos/lara-zeus/spatie-translatable/zipball/d8dd00de3d2f5e9ebbe8901bdeefcc0494f4d7ad",
+                "reference": "d8dd00de3d2f5e9ebbe8901bdeefcc0494f4d7ad",
                 "shasum": ""
             },
             "require": {
@@ -2968,20 +3189,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-06-24T17:11:43+00:00"
+            "time": "2025-08-13T15:55:24+00:00"
         },
         {
             "name": "laravel/framework",
-            "version": "v12.23.1",
+            "version": "v12.24.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "2a0e9331a0db904236143fe915c281ff4be274a3"
+                "reference": "6dcf2c46da23d159f35d6246234953a74b740d83"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/2a0e9331a0db904236143fe915c281ff4be274a3",
-                "reference": "2a0e9331a0db904236143fe915c281ff4be274a3",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/6dcf2c46da23d159f35d6246234953a74b740d83",
+                "reference": "6dcf2c46da23d159f35d6246234953a74b740d83",
                 "shasum": ""
             },
             "require": {
@@ -3091,7 +3312,7 @@
                 "league/flysystem-read-only": "^3.25.1",
                 "league/flysystem-sftp-v3": "^3.25.1",
                 "mockery/mockery": "^1.6.10",
-                "orchestra/testbench-core": "^10.0.0",
+                "orchestra/testbench-core": "^10.6.0",
                 "pda/pheanstalk": "^5.0.6|^7.0.0",
                 "php-http/discovery": "^1.15",
                 "phpstan/phpstan": "^2.0",
@@ -3185,7 +3406,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2025-08-12T17:35:05+00:00"
+            "time": "2025-08-13T20:30:36+00:00"
         },
         {
             "name": "laravel/horizon",
@@ -4895,16 +5116,16 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v5.6.0",
+            "version": "v5.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "221b0d0fdf1369c71047ad1d18bb5880017bbc56"
+                "reference": "f103601b29efebd7ff4a1ca7b3eeea9e3336a2a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/221b0d0fdf1369c71047ad1d18bb5880017bbc56",
-                "reference": "221b0d0fdf1369c71047ad1d18bb5880017bbc56",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/f103601b29efebd7ff4a1ca7b3eeea9e3336a2a2",
+                "reference": "f103601b29efebd7ff4a1ca7b3eeea9e3336a2a2",
                 "shasum": ""
             },
             "require": {
@@ -4923,7 +5144,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "5.0-dev"
+                    "dev-master": "5.x-dev"
                 }
             },
             "autoload": {
@@ -4947,9 +5168,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v5.6.0"
+                "source": "https://github.com/nikic/PHP-Parser/tree/v5.6.1"
             },
-            "time": "2025-07-27T20:03:57+00:00"
+            "time": "2025-08-13T20:13:15+00:00"
         },
         {
             "name": "nunomaduro/termwind",
@@ -12517,16 +12738,16 @@
         },
         {
             "name": "rector/rector",
-            "version": "2.1.2",
+            "version": "2.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "40a71441dd73fa150a66102f5ca1364c44fc8fff"
+                "reference": "dd430c869fddf4965049c8fd6f5ee49f155cfddf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/40a71441dd73fa150a66102f5ca1364c44fc8fff",
-                "reference": "40a71441dd73fa150a66102f5ca1364c44fc8fff",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/dd430c869fddf4965049c8fd6f5ee49f155cfddf",
+                "reference": "dd430c869fddf4965049c8fd6f5ee49f155cfddf",
                 "shasum": ""
             },
             "require": {
@@ -12565,7 +12786,7 @@
             ],
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/2.1.2"
+                "source": "https://github.com/rectorphp/rector/tree/2.1.3"
             },
             "funding": [
                 {
@@ -12573,7 +12794,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-07-17T19:30:06+00:00"
+            "time": "2025-08-13T11:43:04+00:00"
         },
         {
             "name": "sebastian/cli-parser",

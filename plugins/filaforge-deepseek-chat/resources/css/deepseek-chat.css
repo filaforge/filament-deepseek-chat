@@ -46,7 +46,7 @@
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
     overflow-y: auto;
     background: transparent;
     border-radius: 0.75rem;
@@ -561,4 +561,8 @@ button.deepseek-send-button:focus:not(:disabled),
 .deepseek-conv-list .conv-actions { opacity: .6; }
 .deepseek-conv-list .conv-row:hover .conv-actions { opacity: 1; }
 
-
+#spinner-container {
+    padding-top:30px;
+    min-height:600px;
+    padding-bottom:90px;
+}

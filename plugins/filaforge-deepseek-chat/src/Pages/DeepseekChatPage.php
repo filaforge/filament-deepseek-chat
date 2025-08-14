@@ -68,7 +68,7 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
 
         return $table
             ->query($query)
-            ->defaultPaginationPageOption(5)
+            ->defaultPaginationPageOption(10)
             ->columns([
                 TextColumn::make('title')
                     ->label('Title')
@@ -384,7 +384,7 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
     {
         return [
             // Keep registered but hidden; UI buttons live in the page body
-            SetApiKey::make()->hidden(),
+            SetApiKey::make()->hidden()
         ];
     }
 }

@@ -34,6 +34,46 @@
                         this.optimisticMessage = '';
                         this.scrollToBottom();
                     });
+
+                    // Observe spinner visibility (is-loading class is added by wire:loading.delay)
+                    this.$nextTick(() => {
+                        const spinnerEl = this.$refs.spinner;
+                        if (!spinnerEl) return;
+                        const observer = new MutationObserver(() => {
+                            if (spinnerEl.classList.contains('is-loading')) {
+                                // Scroll only after spinner is rendered and layout has settled
+                                const messagesEl = this.$refs.messages;
+                                if (!messagesEl) return;
+                                requestAnimationFrame(() => {
+                                    requestAnimationFrame(() => {
+                                        messagesEl.scrollTop = messagesEl.scrollHeight + 400; // extra space for centered spinner
+                                    });
+                                });
+                            }
+                        });
+                        observer.observe(spinnerEl, { attributes: true, attributeFilter: ['class'] });
+                    });
+
+                    // Always scroll when messages container resizes (new content, images, etc.)
+                    this.$nextTick(() => {
+                        const messagesEl = this.$refs.messages;
+                        if (!messagesEl || typeof ResizeObserver === 'undefined') return;
+                        const resizeObserver = new ResizeObserver(() => {
+                            // Always scroll to bottom when content/height changes
+                            messagesEl.scrollTop = messagesEl.scrollHeight;
+                        });
+                        resizeObserver.observe(messagesEl);
+                    });
+
+                    // Also observe DOM mutations inside the messages container (child list changes from Livewire updates)
+                    this.$nextTick(() => {
+                        const messagesEl = this.$refs.messages;
+                        if (!messagesEl) return;
+                        const mutationObserver = new MutationObserver(() => {
+                            messagesEl.scrollTop = messagesEl.scrollHeight;
+                        });
+                        mutationObserver.observe(messagesEl, { childList: true, subtree: true });
+                    });
                 },
                 sendMessage() {
                     if ($wire.userInput?.trim()) {
@@ -65,6 +105,7 @@
                         }
                         event.preventDefault();
                         this.sendMessage();
+                        this.scrollToBottom();
                     }
                 }
             }"
@@ -155,6 +196,7 @@
                 wire:target="send"
                 wire:loading.delay.class="is-loading"
                 id="spinner-container"
+                x-ref="spinner"
                 class="deepseek-center-loader"
                 aria-hidden="true"
             >
@@ -196,9 +238,6 @@
                     // Show optimistic user message immediately on the right
                     this.$dispatch('deepseek-optimistic', { text: this.draft });
 
-                    // Scroll extra space before triggering loading spinner
-                    window.dispatchEvent(new CustomEvent('deepseek-scroll-extra'));
-
                     // Pass the message to Livewire after a tiny delay to allow scroll
                     const textToSend = this.draft;
                     this.draft = '';
@@ -209,6 +248,13 @@
 
                     // Remove focus from textarea
                     this.$refs.input && this.$refs.input.blur();
+
+                    setTimeout(() => {
+                    // Scroll extra space before triggering loading spinner
+                    window.dispatchEvent(new CustomEvent('deepseek-scroll-extra'));
+
+                    }, 100);
+
                 }
              }"
              @toggle-chats.window="showTableLocal = !showTableLocal"

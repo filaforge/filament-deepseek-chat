@@ -2,7 +2,6 @@
 
 namespace Filaforge\TerminalConsole\Pages;
 
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -10,7 +9,8 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Symfony\Component\Process\Process;
 
@@ -31,11 +31,11 @@ class TerminalPage extends Page implements HasForms
     public array $data = [];
 
     /**
-     * @var list<array{command:string, exit:int|null, output:string}>
+     * @var list<array{command:string, exit:int|null, output:string, timestamp:string}>
      */
     public array $history = [];
 
-        public ?int $exitCode = null;
+    public ?int $exitCode = null;
 
     public string $currentWorkingDirectory = '';
 
@@ -45,6 +45,9 @@ class TerminalPage extends Page implements HasForms
 
     public function mount(): void
     {
+        if (!config('terminal.enabled', true)) {
+            abort(403, 'Terminal console is disabled.');
+        }
         $this->updateCurrentWorkingDirectory();
         $this->loadCommandHistory();
     }
@@ -55,11 +58,14 @@ class TerminalPage extends Page implements HasForms
             ->components([
                 TextInput::make('command')
                     ->label('Command')
-                    ->placeholder('php artisan migrate --force')
+                    ->placeholder('Enter command (e.g., php artisan migrate)')
                     ->required()
+                    ->autocomplete(false)
                     ->extraAlpineAttributes([
                         'x-on:keydown.ctrl.enter.prevent' => '$wire.run()',
+                        'x-on:keydown.enter.prevent' => '$wire.run()',
                     ]),
+                
                 Textarea::make('output')
                     ->rows(1)
                     ->disabled()
@@ -69,8 +75,26 @@ class TerminalPage extends Page implements HasForms
             ->statePath('data');
     }
 
+    // Preset components are rendered in the Blade view; no form actions needed.
+
     public function run(): void
     {
+        // Rate limiting
+        $rateLimitKey = 'terminal-commands:' . auth()->id();
+        $maxAttempts = config('terminal.rate_limit', 60);
+        
+        if (RateLimiter::tooManyAttempts($rateLimitKey, $maxAttempts)) {
+            $seconds = RateLimiter::availableIn($rateLimitKey);
+            Notification::make()
+                ->title('Rate limit exceeded')
+                ->body("Too many commands. Try again in {$seconds} seconds.")
+                ->danger()
+                ->send();
+            return;
+        }
+
+        RateLimiter::hit($rateLimitKey, 60); // 1 minute window
+
         $state = $this->form->getState();
         $full = trim((string) ($state['command'] ?? ''));
 
@@ -79,7 +103,15 @@ class TerminalPage extends Page implements HasForms
             return;
         }
 
+        // Validate and sanitize input
+        if (!$this->validateCommand($full)) {
+            return;
+        }
+
         [$binary, $args] = $this->splitBinaryAndArgs($full);
+
+        // Log command execution attempt
+        $this->logCommand($full, 'attempt');
 
         // Handle shell built-ins like `cd` without spawning a process
         if ($binary === 'cd') {
@@ -87,33 +119,12 @@ class TerminalPage extends Page implements HasForms
             $this->exitCode = 0;
 
             // Append to history
-            $this->history[] = [
-                'command' => $full,
-                'exit' => $this->exitCode,
-                'output' => '',
-            ];
-
-            // Add command to history store
+            $this->addToHistory($full, 0, '');
             $this->addToCommandHistory($full);
 
-            // Clear input and set last output only
-            $this->form->fill([
-                'command' => '',
-                'output' => '',
-            ]);
-
-            // Notify frontend terminal to update prompt
-            try {
-                $this->dispatch('terminal.output',
-                    command: $full,
-                    output: '',
-                    exit: $this->exitCode,
-                    path: $this->getCurrentPath()
-                );
-            } catch (\Throwable $e) {
-                // Ignore dispatch errors
-            }
-
+            $this->clearInput();
+            $this->notifyTerminal($full, '', 0);
+            
             Notification::make()->title('Directory changed')->success()->send();
             return;
         }
@@ -121,22 +132,10 @@ class TerminalPage extends Page implements HasForms
         // Built-in `clear` / `cls` command
         if (in_array($binary, ['clear', 'cls'], true)) {
             $this->exitCode = 0;
-
-            // Track history
-            $this->history[] = [
-                'command' => $full,
-                'exit' => $this->exitCode,
-                'output' => '',
-            ];
+            $this->addToHistory($full, 0, '');
             $this->addToCommandHistory($full);
-
-            // Clear mirrored output
-            $this->form->fill([
-                'command' => '',
-                'output' => '',
-            ]);
-
-            // Tell frontend to clear the terminal UI and redraw prompt
+            $this->clearInput();
+            
             try {
                 $this->dispatch('terminal.clear', path: $this->getCurrentPath());
             } catch (\Throwable $e) {
@@ -147,65 +146,191 @@ class TerminalPage extends Page implements HasForms
         }
 
         // Security: enforce allowlist
-        $allowAny = (bool) config('terminal.allow_any', false);
-        $allowedBinaries = (array) config('terminal.allowed_binaries', []);
-        if (! $allowAny && ! in_array($binary, $allowedBinaries, true)) {
-            Notification::make()->title('Binary not allowed')->danger()->send();
+        if (!$this->isCommandAllowed($binary)) {
+            $this->logCommand($full, 'blocked');
+            Notification::make()
+                ->title('Command not allowed')
+                ->body("The command '{$binary}' is blocked or not permitted by configuration.")
+                ->danger()
+                ->send();
             return;
         }
 
-        // Use current working directory for command execution
-        $workingDir = !empty($this->currentWorkingDirectory) ? $this->currentWorkingDirectory : (string) config('terminal.working_directory', base_path());
-        $process = new Process(array_merge([$binary], $args), $workingDir);
-        $process->setTimeout((int) config('terminal.timeout', 60));
+        // Execute the command
+        $this->executeCommand($full, $binary, $args);
+    }
+
+    protected function validateCommand(string $command): bool
+    {
+        // Basic input validation
+        if (strlen($command) > 1000) {
+            Notification::make()
+                ->title('Command too long')
+                ->body('Command must be less than 1000 characters.')
+                ->danger()
+                ->send();
+            return false;
+        }
+
+        // Check for dangerous patterns
+        $dangerousPatterns = [
+            '/\s*(rm\s+-rf\s+\/|\srm\s+-rf\s+\*)/i',
+            '/\s*mkfs\s+/i',
+            '/\s*dd\s+if=/i',
+            '/\s*:\(\)\{\s*:\|\:&\s*\}\s*;:\s*/i', // fork bomb
+        ];
+
+        foreach ($dangerousPatterns as $pattern) {
+            if (preg_match($pattern, $command)) {
+                Notification::make()
+                    ->title('Dangerous command detected')
+                    ->body('This command pattern is not allowed for security reasons.')
+                    ->danger()
+                    ->send();
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    protected function isCommandAllowed(string $binary): bool
+    {
+        $blocked = (array) config('terminal.blocked_binaries', []);
+        if (in_array($binary, $blocked, true)) {
+            return false;
+        }
+
+        $allowAny = (bool) config('terminal.allow_any', false);
+        if ($allowAny) {
+            return true;
+        }
+
+        $allowedBinaries = (array) config('terminal.allowed_binaries', []);
+        return in_array($binary, $allowedBinaries, true);
+    }
+
+    protected function executeCommand(string $full, string $binary, array $args): void
+    {
+        $workingDir = !empty($this->currentWorkingDirectory) 
+            ? $this->currentWorkingDirectory 
+            : config('terminal.working_directory', base_path());
+
+        $process = new Process(
+            array_merge([$binary], $args), 
+            $workingDir, 
+            $this->getEnvironmentVariables()
+        );
+        
+        $process->setTimeout(config('terminal.timeout', 60));
 
         try {
             $process->run();
             $this->exitCode = $process->getExitCode();
             $output = $process->getOutput() . ($process->getErrorOutput() ? "\n" . $process->getErrorOutput() : '');
+            
+            $this->logCommand($full, $this->exitCode === 0 ? 'success' : 'failed', $output);
         } catch (\Throwable $e) {
             $this->exitCode = 1;
             $output = $e->getMessage();
+            $this->logCommand($full, 'error', $output);
         }
 
         // Append to history
+        $this->addToHistory($full, $this->exitCode, $output);
+        $this->addToCommandHistory($full);
+        $this->clearInput();
+        $this->notifyTerminal($full, $output, $this->exitCode);
+
+        if ($this->exitCode === 0) {
+            Notification::make()->title('Command executed successfully')->success()->send();
+        } else {
+            Notification::make()->title('Command failed')->danger()->send();
+        }
+    }
+
+    protected function getEnvironmentVariables(): array
+    {
+        $defaultEnv = $_ENV;
+        $customEnv = config('terminal.environment_variables', []);
+        
+        return array_merge($defaultEnv, $customEnv);
+    }
+
+    protected function logCommand(string $command, string $status, string $output = ''): void
+    {
+        if (!config('terminal.logging.enabled', true)) {
+            return;
+        }
+
+        $shouldLog = match ($status) {
+            'success' => config('terminal.logging.log_successful', true),
+            'failed', 'error' => config('terminal.logging.log_failed', true),
+            default => true,
+        };
+
+        if (!$shouldLog) {
+            return;
+        }
+
+        $logData = [
+            'user_id' => auth()->id(),
+            'command' => $command,
+            'status' => $status,
+            'working_directory' => $this->currentWorkingDirectory,
+            'timestamp' => now()->toISOString(),
+        ];
+
+        if (config('terminal.logging.include_output', false) && $output) {
+            $logData['output'] = Str::limit($output, 500);
+        }
+
+        $channel = config('terminal.logging.channel');
+        $logger = $channel ? Log::channel($channel) : Log::getLogger();
+
+        match ($status) {
+            'success' => $logger->info('Terminal command executed', $logData),
+            'failed', 'error' => $logger->warning('Terminal command failed', $logData),
+            'blocked' => $logger->warning('Terminal command blocked', $logData),
+            default => $logger->info('Terminal command attempted', $logData),
+        };
+    }
+
+    protected function addToHistory(string $command, ?int $exitCode, string $output): void
+    {
         $this->history[] = [
-            'command' => $full,
-            'exit' => $this->exitCode,
+            'command' => $command,
+            'exit' => $exitCode,
             'output' => $output,
+            'timestamp' => now()->format('H:i:s'),
         ];
 
         // Trim history
-        $max = (int) config('terminal.max_history', 100);
+        $max = config('terminal.max_history', 100);
         if (count($this->history) > $max) {
             $this->history = array_slice($this->history, -$max);
         }
+    }
 
-        // Add command to history
-        $this->addToCommandHistory($full);
-
-        // Clear input and set last output only (no accumulated history)
+    protected function clearInput(): void
+    {
         $this->form->fill([
             'command' => '',
-            'output' => $output,
+            'output' => '',
         ]);
+    }
 
-        // Notify frontend terminal to render the output
+    protected function notifyTerminal(string $command, string $output, ?int $exitCode): void
+    {
         try {
             $this->dispatch('terminal.output',
-                command: $full,
+                command: $command,
                 output: $output,
-                exit: $this->exitCode,
+                exit: $exitCode,
                 path: $this->getCurrentPath()
             );
         } catch (\Throwable $e) {
             // Ignore dispatch errors to avoid breaking UX
-        }
-
-        if ($this->exitCode === 0) {
-            Notification::make()->title('Command finished')->success()->send();
-        } else {
-            Notification::make()->title('Command failed')->danger()->send();
         }
     }
 
@@ -229,20 +354,20 @@ class TerminalPage extends Page implements HasForms
             } elseif (str_starts_with($targetDir, '/')) {
                 // Absolute path
                 if (is_dir($targetDir)) {
-                    $this->currentWorkingDirectory = realpath($targetDir);
+                    $this->currentWorkingDirectory = realpath($targetDir) ?: $targetDir;
                 }
             } elseif (str_starts_with($targetDir, '~/')) {
                 // Home relative path
                 $home = getenv('HOME') ?: '/home/' . get_current_user();
                 $fullPath = $home . '/' . substr($targetDir, 2);
                 if (is_dir($fullPath)) {
-                    $this->currentWorkingDirectory = realpath($fullPath);
+                    $this->currentWorkingDirectory = realpath($fullPath) ?: $fullPath;
                 }
             } else {
                 // Relative path
                 $fullPath = $this->currentWorkingDirectory . '/' . $targetDir;
                 if (is_dir($fullPath)) {
-                    $this->currentWorkingDirectory = realpath($fullPath);
+                    $this->currentWorkingDirectory = realpath($fullPath) ?: $fullPath;
                 }
             }
         }
@@ -258,7 +383,7 @@ class TerminalPage extends Page implements HasForms
         $this->commandHistory[] = $command;
 
         // Limit history size
-        $maxHistory = 100;
+        $maxHistory = config('terminal.max_history', 100);
         if (count($this->commandHistory) > $maxHistory) {
             $this->commandHistory = array_slice($this->commandHistory, -$maxHistory);
         }
@@ -272,11 +397,19 @@ class TerminalPage extends Page implements HasForms
 
     private function loadCommandHistory(): void
     {
+        if (!config('terminal.command_history', true)) {
+            return;
+        }
+        
         $this->commandHistory = session('terminal_command_history', []);
     }
 
     private function saveCommandHistory(): void
     {
+        if (!config('terminal.command_history', true)) {
+            return;
+        }
+        
         session(['terminal_command_history' => $this->commandHistory]);
     }
 
@@ -306,14 +439,23 @@ class TerminalPage extends Page implements HasForms
 
     public function getTabCompletion(string $partialCommand): array
     {
+        if (!config('terminal.tab_completion', true)) {
+            return [];
+        }
+
         $parts = explode(' ', $partialCommand);
         $lastPart = end($parts);
-
         $suggestions = [];
 
         // Command completion for first word
         if (count($parts) === 1) {
-            $commands = ['cd', 'ls', 'pwd', 'whoami', 'php', 'composer', 'git', 'cat', 'grep', 'find', 'mkdir', 'rmdir', 'cp', 'mv', 'rm'];
+            $allowedCommands = config('terminal.allowed_binaries', []);
+            $blocked = (array) config('terminal.blocked_binaries', []);
+            $builtinCommands = ['cd', 'clear', 'cls'];
+            $commands = array_merge($allowedCommands, $builtinCommands);
+            // Filter blocked from suggestions
+            $commands = array_values(array_filter($commands, fn ($c) => !in_array($c, $blocked, true)));
+            
             foreach ($commands as $cmd) {
                 if (str_starts_with($cmd, $lastPart)) {
                     $suggestions[] = $cmd;
@@ -332,17 +474,21 @@ class TerminalPage extends Page implements HasForms
                 $searchDir = $this->currentWorkingDirectory . '/' . $basePath;
             }
 
-            if (is_dir($searchDir)) {
-                $files = scandir($searchDir);
-                foreach ($files as $file) {
-                    if ($file !== '.' && $file !== '..' && str_starts_with($file, $filename)) {
-                        $fullPath = $searchDir . '/' . $file;
-                        $suggestion = $basePath === '.' ? $file : $basePath . '/' . $file;
-                        if (is_dir($fullPath)) {
-                            $suggestion .= '/';
+            if (is_dir($searchDir) && is_readable($searchDir)) {
+                try {
+                    $files = scandir($searchDir);
+                    foreach ($files as $file) {
+                        if ($file !== '.' && $file !== '..' && str_starts_with($file, $filename)) {
+                            $fullPath = $searchDir . '/' . $file;
+                            $suggestion = $basePath === '.' ? $file : $basePath . '/' . $file;
+                            if (is_dir($fullPath)) {
+                                $suggestion .= '/';
+                            }
+                            $suggestions[] = $suggestion;
                         }
-                        $suggestions[] = $suggestion;
                     }
+                } catch (\Throwable $e) {
+                    // Ignore file system errors
                 }
             }
         }
@@ -353,15 +499,17 @@ class TerminalPage extends Page implements HasForms
     private function updateCurrentWorkingDirectory(): void
     {
         try {
-            $process = new Process(['pwd'], (string) config('terminal.working_directory', base_path()));
+            $baseDir = config('terminal.working_directory', base_path());
+            $process = new Process(['pwd'], $baseDir);
             $process->run();
+            
             if ($process->isSuccessful()) {
                 $this->currentWorkingDirectory = trim($process->getOutput());
             } else {
-                $this->currentWorkingDirectory = (string) config('terminal.working_directory', base_path());
+                $this->currentWorkingDirectory = $baseDir;
             }
         } catch (\Throwable $e) {
-            $this->currentWorkingDirectory = (string) config('terminal.working_directory', base_path());
+            $this->currentWorkingDirectory = config('terminal.working_directory', base_path());
         }
     }
 
@@ -382,21 +530,18 @@ class TerminalPage extends Page implements HasForms
     private function splitBinaryAndArgs(string $command): array
     {
         $parts = preg_split('/\s+/', trim($command));
-        $binary = array_shift($parts);
+        $binary = array_shift($parts) ?? '';
         return [$binary, $parts];
     }
 
-    private function renderHistory(): string
+    public static function shouldRegisterNavigation(): bool
     {
-        return collect($this->history)
-            ->map(function ($item): string {
-                $prompt = sprintf("$ %s\n", $item['command']);
-                $out = (string) $item['output'];
-                $exit = $item['exit'];
-                $exitLine = "\n[exit: " . ($exit === null ? '-' : (string) $exit) . "]\n";
-                return $prompt . $out . $exitLine;
-            })
-            ->implode("\n");
+        return config('terminal.enabled', true);
+    }
+
+    public static function canAccess(): bool
+    {
+        return config('terminal.enabled', true);
     }
 }
 

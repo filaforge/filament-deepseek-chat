@@ -38,12 +38,12 @@ composer require filaforge/deepseek-chat
 
 ### Step 2: Publish assets (config, views, lang)
 ```bash
-php artisan vendor:publish --provider="Filaforge\DeepseekChat\Providers\DeepseekChatServiceProvider"
+php artisan vendor:publish --provider="Filaforge\DeepseekChat\Providers\DeepseekChatServiceProvider" --tag=migrations
 ```
 
 ### Step 3: Run migrations
 ```bash
-php artisan migrate
+php artisan migrate --path=vendor/filaforge/deepseek-chat/database/migrations
 ```
 This creates the deepseek_conversations table and adds a deepseek_api_key column to users if it doesn’t exist.
 
@@ -70,10 +70,10 @@ Note: If your app has multiple panels, add the plugin to whichever panel should 
 
 ---
 
-## Usage
-- Open “DeepSeek Chat” from your Filament navigation.
-- Go to “DeepSeek Settings” to set your personal API key (stored on the user). If you prefer, you can set a default in `.env` (see below) and users can override it.
-- Start chatting. Conversations are saved to the `deepseek_conversations` table.
+### Step 5: Clear 
+```bash
+php artisan config:clear && php artisan view:clear && php artisan route:clear && php artisan optimize
+```
 
 ---
 
@@ -105,6 +105,30 @@ return [
     // ...
     'allow_roles' => ['admin', 'staff'],
 ];
+```
+
+---
+
+## Usage
+- Open “DeepSeek Chat” from your Filament navigation.
+- Go to “DeepSeek Settings” to set your personal API key (stored on the user). If you prefer, you can set a default in `.env` (see below) and users can override it.
+- Start chatting. Conversations are saved to the `deepseek_conversations` table.
+
+---
+
+## Updates
+
+```bash
+composer update filaforge/deepseek-chat
+php artisan config:clear
+```
+
+```bash
+php artisan vendor:publish --provider="Filaforge\DeepseekChat\Providers\DeepseekChatServiceProvider" --force
+```
+
+```bash
+php artisan migrate --path=vendor/filaforge/deepseek-chat/database/migrations --force
 ```
 
 ---
