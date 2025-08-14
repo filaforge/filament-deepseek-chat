@@ -3,6 +3,7 @@
 namespace Filaforge\TerminalConsole;
 
 use Filaforge\TerminalConsole\Pages\TerminalPage;
+use Filaforge\TerminalConsole\Pages\TerminalSettingsPage;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 
@@ -17,6 +18,7 @@ class TerminalConsolePlugin implements Plugin
     {
         $panel->pages([
             TerminalPage::class,
+            TerminalSettingsPage::class,
         ]);
     }
 

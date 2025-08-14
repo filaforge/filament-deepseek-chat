@@ -251,10 +251,20 @@ class TerminalPage extends Page implements HasForms
 
     protected function getEnvironmentVariables(): array
     {
-        $defaultEnv = $_ENV;
-        $customEnv = config('terminal.environment_variables', []);
-        
-        return array_merge($defaultEnv, $customEnv);
+    $defaultEnv = $_ENV;
+    $customEnv = config('terminal.environment_variables', []);
+
+    // Merge PATH with optional EXTRA PATH (DB or .env) without overriding
+    $env = array_merge($defaultEnv, $customEnv);
+    $extraPath = \Filaforge\TerminalConsole\Models\TerminalSetting::get('extra_path') ?? env('TERMINAL_EXTRA_PATH');
+        if (is_string($extraPath) && $extraPath !== '') {
+            $currentPath = $env['PATH'] ?? getenv('PATH') ?? '';
+            // Prepend extra PATH so higher priority dirs come first
+            $mergedPath = $extraPath . ($currentPath ? (PATH_SEPARATOR . $currentPath) : '');
+            $env['PATH'] = $mergedPath;
+        }
+
+        return $env;
     }
 
     protected function logCommand(string $command, string $status, string $output = ''): void

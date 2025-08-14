@@ -1,0 +1,17 @@
+/*
+ |--------------------------------------------------------------------------
+ | Terminal Console Plugin CSS
+ |--------------------------------------------------------------------------
+ | Use this file to override or extend the terminal page styles.
+ | It's published to public/vendor/terminal-console/css/index.css.
+ */
+
+/* Example utility for preset buttons spacing */
+.fi-preset-btn { margin-right: 10px; }
+
+/* Optional: tweak terminal container visuals (kept light by default) */
+.fi-terminal-container { border-radius: 12px; }
+
+/* Hide the Filament page header heading on this page */
+.ff-terminal-console .fi-header-heading,
+.ff-terminal-console .fi-header .fi-header-heading { display: none !important; }

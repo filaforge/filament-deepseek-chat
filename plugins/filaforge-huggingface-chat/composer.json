@@ -1,0 +1,38 @@
+{
+  "name": "filaforge/huggingface-chat",
+  "description": "Filament panel plugin providing a Hugging Face chat page with admin-manageable API token and conversations.",
+  "type": "library",
+  "license": "MIT",
+  "keywords": ["Laravel", "Filament", "Platform", "HuggingFace"],
+  "homepage": "https://github.com/filaforge/huggingface-chat",
+  "authors": [
+    { "name": "Filaforge" }
+  ],
+  "support": {
+    "email": "filaforger@gmail.com",
+    "source": "https://github.com/filaforge/huggingface-chat"
+  },
+  "require": {
+    "php": "^8.1",
+    "filament/filament": "^4.0",
+    "illuminate/support": "^12.0",
+    "spatie/laravel-package-tools": "^1.16",
+    "guzzlehttp/guzzle": "^7.8"
+  },
+  "autoload": {
+    "psr-4": {
+      "Filaforge\\HuggingfaceChat\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Filaforge\\HuggingfaceChat\\Providers\\HfChatServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}
+
+

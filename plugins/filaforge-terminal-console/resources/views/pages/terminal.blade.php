@@ -1,10 +1,16 @@
 @php($errors ??= new \Illuminate\Support\ViewErrorBag)
-<x-filament::page>
+<x-filament::page class="ff-terminal-console">
     <!-- Xterm.js CSS and JS (UMD builds) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
     <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xterm-addon-web-links@0.9.0/lib/xterm-addon-web-links.js"></script>
+
+    <!-- Plugin CSS -->
+    @php($cssPath = public_path('vendor/terminal-console/css/index.css'))
+    @if(file_exists($cssPath))
+        <link rel="stylesheet" href="{{ asset('vendor/terminal-console/css/index.css') }}" />
+    @endif
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
@@ -17,6 +23,17 @@
     </style>
 
     @php($presets = config('terminal.presets', []))
+
+    <x-filament::section>
+        <x-slot name="heading">Terminal Console</x-slot>
+        <x-slot name="description">🟢 Connected to ({{ gethostname() }})</x-slot>
+
+        <div class="fi-terminal-container">
+            <div id="terminal" wire:ignore x-data="{}"
+                 x-init="(() => { const lw = @this; let t=0; const boot=()=>{ if(window.FilaTerminal&&window.FilaTerminal.init){ window.FilaTerminal.init($el,lw);} else if(t++<60){ setTimeout(boot,50);} }; boot(); })()"
+                 style="height:60vh;"></div>
+        </div>
+    </x-filament::section>
 
     @if(!empty($presets))
     <div x-data="{ active: 'all' }">
@@ -116,17 +133,6 @@
         </x-filament::section>
     </div>
     @endif
-
-    <x-filament::section>
-        <x-slot name="heading">Terminal Console</x-slot>
-        <x-slot name="description">🟢 Connected to ({{ gethostname() }})</x-slot>
-
-        <div class="fi-terminal-container">
-            <div id="terminal" wire:ignore x-data="{}"
-                 x-init="(() => { const lw = @this; let t=0; const boot=()=>{ if(window.FilaTerminal&&window.FilaTerminal.init){ window.FilaTerminal.init($el,lw);} else if(t++<60){ setTimeout(boot,50);} }; boot(); })()"
-                 style="height:60vh;"></div>
-        </div>
-    </x-filament::section>
 
     <script>
     window.FilaTerminal = window.FilaTerminal || (function () {

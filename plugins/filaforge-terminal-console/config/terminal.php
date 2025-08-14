@@ -33,6 +33,8 @@ return [
         
     // Development tools
     'php', 'composer', 'npm', 'yarn', 'git', 'node', 'filament',
+    // Containers & databases
+    'docker', 'mysql', 'psql', 'redis-cli', 'pnpm',
         
         // Laravel Artisan
         'artisan',
@@ -226,8 +228,11 @@ return [
 
     // Environment variables to set for commands
     'environment_variables' => [
+        // You can hard-override PATH here, but prefer TERMINAL_EXTRA_PATH to append instead.
         // 'PATH' => '/usr/local/bin:/usr/bin:/bin',
         // 'NODE_ENV' => 'production',
+        // Tip: Set TERMINAL_EXTRA_PATH in .env to append to the current PATH for commands like docker/node/mysql
+        // Example: TERMINAL_EXTRA_PATH="/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/snap/bin"
     ],
 
     // Enable tab completion

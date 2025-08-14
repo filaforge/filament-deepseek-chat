@@ -17,6 +17,9 @@ class TerminalConsoleServiceProvider extends PackageServiceProvider
         $package
             ->name(static::$name)
             ->hasConfigFile('terminal')
+            ->hasMigrations([
+                'create_terminal_console_settings_table',
+            ])
             ->hasViews()
             ->hasAssets()
             ->hasTranslations()
@@ -51,5 +54,11 @@ class TerminalConsoleServiceProvider extends PackageServiceProvider
             __DIR__ . '/../../resources/js' => resource_path('vendor/terminal-console/js'),
             __DIR__ . '/../../resources/css' => resource_path('vendor/terminal-console/css'),
         ], 'terminal-console-assets');
+
+        // Publish web assets directly to public for easy linking
+        $this->publishes([
+            __DIR__ . '/../../resources/js' => public_path('vendor/terminal-console/js'),
+            __DIR__ . '/../../resources/css' => public_path('vendor/terminal-console/css'),
+        ], 'terminal-console-public');
     }
 }
