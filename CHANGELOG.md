@@ -2,6 +2,15 @@
 
 All notable changes to `filaforge/deepseek-chat` will be documented in this file.
 
+## v0.7.0 - 2025-08-18
+- **BREAKING CHANGE**: Simplified installation process for better reliability
+- **REMOVED**: Automatic migration execution during package installation
+- **REMOVED**: Automatic optimization (php artisan optimize) during installation
+- **IMPROVED**: Installation now requires manual migration execution
+- **IMPROVED**: Better separation of concerns - installation vs. setup
+- **FIXED**: Installation no longer breaks sites during composer install
+- **IMPROVED**: More predictable and safer installation process
+
 ## v0.6.0 - 2025-08-18
 - **NEW**: Auto-toggle Set API Key modal when API key is missing
 - **NEW**: Enhanced empty state with conditional messaging based on API key status
