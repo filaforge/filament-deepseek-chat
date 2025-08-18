@@ -2,6 +2,15 @@
 
 All notable changes to `filaforge/deepseek-chat` will be documented in this file.
 
+## v0.6.0 - 2025-08-18
+- **NEW**: Auto-toggle Set API Key modal when API key is missing
+- **NEW**: Enhanced empty state with conditional messaging based on API key status
+- **NEW**: Automatic modal trigger when user tries to send message without API key
+- **IMPROVED**: Better user experience with guided API key setup
+- **IMPROVED**: Success notification when API key is saved
+- **IMPROVED**: Automatic page refresh after API key is set
+- **IMPROVED**: Helpful error messages with links to DeepSeek Console
+
 ## v0.5.0 - 2025-08-18
 - **NEW**: Added `allow_roles` column to `deepseek_settings` table
 - **NEW**: Implemented environment variable override system with priority: ENV > Config > Settings Table
