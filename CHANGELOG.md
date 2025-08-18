@@ -2,6 +2,15 @@
 
 All notable changes to `filaforge/deepseek-chat` will be documented in this file.
 
+## v0.5.0 - 2025-08-18
+- **NEW**: Added `allow_roles` column to `deepseek_settings` table
+- **NEW**: Implemented environment variable override system with priority: ENV > Config > Settings Table
+- **NEW**: Support for `DEEPSEEK_API_KEY`, `DEEPSEEK_BASE_URL`, `DEEPSEEK_STREAM`, `DEEPSEEK_TIMEOUT`, `DEEPSEEK_ALLOW_ROLES` environment variables
+- **NEW**: Enhanced role-based access control with per-user role configuration
+- **IMPROVED**: Settings form now includes allow_roles field with comma-separated input
+- **IMPROVED**: Better separation of configuration sources and priority handling
+- **IMPROVED**: More flexible deployment options with environment variable support
+
 ## v0.4.0 - 2025-08-18
 - **REFACTOR**: Replaced users table column with dedicated `deepseek_settings` table
 - **NEW**: Added `DeepseekSetting` model with comprehensive settings management

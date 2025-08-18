@@ -87,6 +87,44 @@ return [
 ];
 ```
 
+### Environment Variable Override System
+The plugin supports environment variable override with the following priority (highest to lowest):
+
+1. **Environment Variables** (highest priority)
+2. **Config File** (medium priority)  
+3. **User Settings Table** (lowest priority)
+
+#### Supported Environment Variables:
+```env
+# API Configuration
+DEEPSEEK_API_KEY=your-key-here
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+DEEPSEEK_STREAM=false
+DEEPSEEK_TIMEOUT=60
+
+# Access Control
+DEEPSEEK_ALLOW_ROLES=admin,staff,user
+```
+
+#### Environment Variable Examples:
+```env
+# Override all settings globally
+DEEPSEEK_API_KEY=sk-1234567890abcdef
+DEEPSEEK_BASE_URL=https://custom-api.deepseek.com
+DEEPSEEK_STREAM=true
+DEEPSEEK_TIMEOUT=120
+DEEPSEEK_ALLOW_ROLES=admin,superuser
+
+# Or override specific settings
+DEEPSEEK_API_KEY=sk-1234567890abcdef
+DEEPSEEK_ALLOW_ROLES=admin
+```
+
+### User Settings Management
+Users can configure their own settings through the DeepSeek Settings page, which will be used unless overridden by environment variables or config files.
+
+**Note**: Environment variables always take precedence over user settings, making them perfect for deployment-specific configurations.
+
 Common `.env` settings:
 ```env
 DEEPSEEK_API_KEY=your-key-here
