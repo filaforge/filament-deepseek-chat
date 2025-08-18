@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\ModelProfileResource\Pages;
+namespace Filaforge\HuggingfaceChat\Resources\ModelProfileResource\Pages;
 
-use App\Filament\Resources\ModelProfileResource;
+use Filaforge\HuggingfaceChat\Resources\ModelProfileResource;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateModelProfile extends CreateRecord

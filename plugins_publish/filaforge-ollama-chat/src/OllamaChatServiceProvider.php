@@ -19,6 +19,12 @@ class OllamaChatServiceProvider extends ServiceProvider
             __DIR__ . '/../config/ollama-chat.php' => config_path('ollama-chat.php'),
         ], 'ollama-chat-config');
 
+        // Assets (CSS / JS)
+        $this->publishes([
+            __DIR__ . '/../resources/css/ollama-chat.css' => public_path('vendor/ollama-chat/ollama-chat.css'),
+            __DIR__ . '/../resources/js/ollama-chat.js' => public_path('vendor/ollama-chat/ollama-chat.js'),
+        ], 'ollama-chat-assets');
+
         // Migrations
         if ($this->app->runningInConsole()) {
             $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');

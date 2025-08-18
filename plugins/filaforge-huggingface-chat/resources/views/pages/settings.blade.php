@@ -1,14 +1,48 @@
 <x-filament-panels::page>
-	<x-filament::section>
-		<x-slot name="heading">Hugging Face API Settings</x-slot>
-		<form wire:submit.prevent="save" class="space-y-4">
-			<div>
-				<label for="apiKey" class="block text-sm font-medium text-gray-700 dark:text-gray-300">API Token</label>
-				<textarea id="apiKey" wire:model.defer="apiKey" rows="5" placeholder="Paste your Hugging Face API token here" class="block w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 p-2 text-sm"></textarea>
-			</div>
-			<button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-white">Save</button>
-		</form>
-	</x-filament::section>
+	<div class="space-y-6">
+		<x-filament::section>
+			<x-slot name="heading">API Configuration</x-slot>
+			<x-slot name="description">Configure your Hugging Face API token for authentication</x-slot>
+			
+			<form wire:submit.prevent="save" class="space-y-4">
+				<div class="grid grid-cols-1 gap-4">
+					<div>
+						<x-filament::input.wrapper>
+							<x-filament::input
+								type="password"
+								wire:model.defer="apiKey"
+								placeholder="hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+								id="apiKey"
+							/>
+						</x-filament::input.wrapper>
+						<x-filament::field-wrapper.helper-text>
+							Your Hugging Face API token. You can find this in your HF account settings.
+						</x-filament::field-wrapper.helper-text>
+					</div>
+				</div>
+				
+				<div class="flex justify-end">
+					<x-filament::button type="submit" size="sm" icon="heroicon-o-key">
+						Save API Token
+					</x-filament::button>
+				</div>
+			</form>
+		</x-filament::section>
+
+		<x-filament::section>
+			<x-slot name="heading">Model & Request Settings</x-slot>
+			<x-slot name="description">Configure default model parameters and request settings</x-slot>
+			
+			<form wire:submit.prevent="saveSettingsForm" class="space-y-4" wire:key="hf-settings-form">
+				{{ $this->form }}
+				<div class="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+					<x-filament::button type="submit" icon="heroicon-o-check-circle">
+						Save Settings
+					</x-filament::button>
+				</div>
+			</form>
+		</x-filament::section>
+	</div>
 </x-filament-panels::page>
 
 

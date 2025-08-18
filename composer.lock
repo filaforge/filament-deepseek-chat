@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "71f86c6b577233a2d312053b5724c3a5",
+    "content-hash": "6266df471568df771d37413a796e942e",
     "packages": [
         {
             "name": "akaunting/laravel-money",
@@ -1325,6 +1325,89 @@
             }
         },
         {
+            "name": "filaforge/chat-ai",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "plugins/filaforge-chat-ai",
+                "reference": "bfc5a16310d8e356dca7fd3dd454c6dc1dc99eb3"
+            },
+            "require": {
+                "filament/filament": "^4.0",
+                "guzzlehttp/guzzle": "^7.8",
+                "illuminate/support": "^12.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.16"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "orchestra/testbench": "^9.0",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Filaforge\\ChatAi\\Providers\\ChatAiServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Filaforge\\ChatAi\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Filaforge\\ChatAi\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "vendor/bin/phpunit"
+                ],
+                "test-coverage": [
+                    "vendor/bin/phpunit --coverage-html coverage"
+                ],
+                "format": [
+                    "vendor/bin/pint"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Filaforge Team",
+                    "email": "filaforger@gmail.com",
+                    "homepage": "https://github.com/filaforge"
+                }
+            ],
+            "description": "Comprehensive Filament panel plugin for chatting with AI models from multiple providers including HuggingFace, Ollama, and DeepSeek. Features conversation management, model profiles, and user-specific settings.",
+            "homepage": "https://github.com/filaforge/chat-ai",
+            "keywords": [
+                "AI",
+                "Chat",
+                "DeepSeek",
+                "Filament",
+                "Filament Plugin",
+                "HuggingFace",
+                "LLM",
+                "Laravel",
+                "Machine Learning",
+                "Ollama"
+            ],
+            "support": {
+                "email": "filaforger@gmail.com",
+                "source": "https://github.com/filaforge/chat-ai",
+                "issues": "https://github.com/filaforge/chat-ai/issues",
+                "docs": "https://github.com/filaforge/chat-ai/blob/main/README.md"
+            },
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "filaforge/database-query",
             "version": "dev-main",
             "dist": {
@@ -1535,7 +1618,7 @@
             "dist": {
                 "type": "path",
                 "url": "plugins/filaforge-huggingface-chat",
-                "reference": "ecd625dd4975ad775c73bf62c2e00d7599237879"
+                "reference": "1284b2680f30c436616202ee9c675ef559e979a9"
             },
             "require": {
                 "filament/filament": "^4.0",
@@ -1543,6 +1626,11 @@
                 "illuminate/support": "^12.0",
                 "php": "^8.1",
                 "spatie/laravel-package-tools": "^1.16"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "orchestra/testbench": "^9.0",
+                "phpunit/phpunit": "^10.0"
             },
             "type": "library",
             "extra": {
@@ -1557,25 +1645,51 @@
                     "Filaforge\\HuggingfaceChat\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "Filaforge\\HuggingfaceChat\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "vendor/bin/phpunit"
+                ],
+                "test-coverage": [
+                    "vendor/bin/phpunit --coverage-html coverage"
+                ],
+                "format": [
+                    "vendor/bin/pint"
+                ]
+            },
             "license": [
                 "MIT"
             ],
             "authors": [
                 {
-                    "name": "Filaforge"
+                    "name": "Filaforge Team",
+                    "email": "filaforger@gmail.com",
+                    "homepage": "https://github.com/filaforge"
                 }
             ],
-            "description": "Filament panel plugin providing a Hugging Face chat page with admin-manageable API token and conversations.",
+            "description": "Comprehensive Filament panel plugin for chatting with AI models from multiple providers including HuggingFace, Ollama, and DeepSeek. Features conversation management, model profiles, and user-specific settings.",
             "homepage": "https://github.com/filaforge/huggingface-chat",
             "keywords": [
+                "AI",
+                "Chat",
+                "DeepSeek",
                 "Filament",
+                "Filament Plugin",
                 "HuggingFace",
+                "LLM",
                 "Laravel",
-                "Platform"
+                "Machine Learning",
+                "Ollama"
             ],
             "support": {
                 "email": "filaforger@gmail.com",
-                "source": "https://github.com/filaforge/huggingface-chat"
+                "source": "https://github.com/filaforge/huggingface-chat",
+                "issues": "https://github.com/filaforge/huggingface-chat/issues",
+                "docs": "https://github.com/filaforge/huggingface-chat/blob/main/README.md"
             },
             "transport-options": {
                 "symlink": true,
@@ -14647,6 +14761,8 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "filaforge/chat-ai": 20,
+        "filaforge/huggingface-chat": 20,
         "lara-zeus/spatie-translatable": 15
     },
     "prefer-stable": true,

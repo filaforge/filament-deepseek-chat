@@ -40,20 +40,16 @@ class HfChatServiceProvider extends PackageServiceProvider
 			Js::make('hf-chat', __DIR__ . '/../../resources/js/hf-chat.js'),
 		], package: 'filaforge/huggingface-chat');
 
-		// Seed a default Fireworks / OSS profile if none exists (idempotent)
+		// Seed default profiles if they don't exist (idempotent)
 		try {
 			if (Schema::hasTable('hf_model_profiles')) {
-				if (! ModelProfile::query()->where('model_id', 'openai/gpt-oss-120b:fireworks-ai')->exists()) {
-					ModelProfile::create([
-						'name' => 'GPT-OSS 120B (Fireworks)',
-						'provider' => 'openai',
-						'model_id' => 'openai/gpt-oss-120b:fireworks-ai',
-						'base_url' => null, // rely on configured base or user setting
-						'api_key' => null,
-						'stream' => true,
-						'timeout' => 120,
-						'system_prompt' => 'You are a powerful general assistant.',
-					]);
+				// Load default profiles from config
+				$defaultProfiles = config('hf-chat.default_profiles', []);
+				
+				foreach ($defaultProfiles as $profileConfig) {
+					if (!ModelProfile::query()->where('model_id', $profileConfig['model_id'])->exists()) {
+						ModelProfile::create($profileConfig);
+					}
 				}
 			}
 		} catch (\Throwable $e) {

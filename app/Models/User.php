@@ -37,6 +37,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants, MustVeri
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'oschat_last_profile_id' => 'integer',
     ];
 
     public function canAccessPanel(Panel $panel): bool

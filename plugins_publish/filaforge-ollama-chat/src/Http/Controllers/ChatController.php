@@ -11,6 +11,28 @@ use Filaforge\OllamaChat\Models\Message;
 
 class ChatController extends Controller
 {
+    public function models()
+    {
+        $base = rtrim(config('ollama-chat.api_url'), '/');
+        try {
+            $response = Http::timeout(5)->get($base . '/api/tags');
+            if ($response->ok()) {
+                $json = $response->json();
+                $models = collect($json['models'] ?? [])->map(function ($m) {
+                    return [
+                        'name' => $m['name'] ?? ($m['model'] ?? null),
+                        'modified_at' => $m['modified_at'] ?? null,
+                        'size' => $m['size'] ?? null,
+                    ];
+                })->filter(fn($m)=>!empty($m['name']))->values();
+                return response()->json(['models' => $models]);
+            }
+            return response()->json(['error' => 'Unable to fetch models','models'=>[]], $response->status());
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage(), 'models'=>[]], 500);
+        }
+    }
+
     public function send(Request $request)
     {
         $request->validate([
@@ -21,8 +43,6 @@ class ChatController extends Controller
 
         $prompt = $request->string('prompt');
         $userId = auth()->id() ?? 'guest';
-
-        // Find or create conversation
         $conversation = null;
         if ($request->filled('conversation_id')) {
             $conversation = Conversation::find($request->input('conversation_id'));
@@ -35,24 +55,20 @@ class ChatController extends Controller
         }
 
         // Store user message
-        $message = Message::create([
+        Message::create([
             'conversation_id' => $conversation->id,
             'message' => $prompt,
             'sender' => 'user',
         ]);
 
-        $reply = null;
-        $error = null;
-
+        $reply = null; $error = null;
         $base = rtrim(config('ollama-chat.api_url'), '/');
         $model = $request->string('model')->isNotEmpty() ? $request->string('model') : config('ollama-chat.default_model', 'llama3:latest');
 
-        // Build context (simple concatenation)
+        // Simple context rebuild
         $history = json_decode($conversation->conversation_data, true) ?: [];
         $contextText = '';
-        foreach ($history as $h) {
-            $contextText .= strtoupper($h['role']).": ".$h['content']."\n";
-        }
+        foreach ($history as $h) { $contextText .= strtoupper($h['role']).": ".$h['content']."\n"; }
         $finalPrompt = $contextText . 'USER: ' . $prompt;
 
         try {
@@ -62,32 +78,26 @@ class ChatController extends Controller
                     'prompt' => $finalPrompt,
                     'stream' => false,
                 ]);
-
             if ($response->ok()) {
                 $json = $response->json();
-                // Ollama returns 'response' when done
                 $reply = $json['response'] ?? ($json['message'] ?? '[no response]');
             } else {
-                $error = 'Upstream HTTP ' . $response->status();
+                $error = 'Upstream HTTP '.$response->status();
             }
         } catch (\Throwable $e) {
-            Log::warning('Ollama request failed: ' . $e->getMessage());
+            Log::warning('Ollama request failed: '.$e->getMessage());
             $error = $e->getMessage();
         }
+        if (! $reply) { $reply = 'Ollama unavailable.'; }
 
-        if (! $reply) {
-            $reply = 'Ollama unavailable.';
-        }
-
-        // Store assistant reply
+        // Store assistant message
         Message::create([
             'conversation_id' => $conversation->id,
             'message' => $reply,
             'sender' => 'assistant',
         ]);
 
-        // Update conversation_data history (simple append array of messages)
-        $history = json_decode($conversation->conversation_data, true) ?: [];
+        // Append to history
         $history[] = ['role' => 'user', 'content' => $prompt];
         $history[] = ['role' => 'assistant', 'content' => $reply];
         $conversation->conversation_data = json_encode($history);

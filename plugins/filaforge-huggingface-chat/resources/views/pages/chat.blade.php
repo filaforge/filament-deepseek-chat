@@ -4,7 +4,45 @@
         <div class="hf-chat-container">
 		@if($viewMode === 'chat')
         <!-- Messages Area -->
-        <div class="hf-chat-messages hf-chat-scroll">
+        <div class="hf-chat-messages hf-chat-scroll" id="hf-chat-messages" x-data="{
+            scrollToBottom() {
+                this.$nextTick(() => {
+                    this.$el.scrollTop = this.$el.scrollHeight;
+                });
+            },
+            init() {
+                // Scroll to bottom on initial load
+                this.scrollToBottom();
+
+                // Watch for loading state changes using Livewire's loading state
+                this.$watch('$wire.loading', (loading) => {
+                    if (loading) {
+                        this.scrollToBottom();
+                    }
+                });
+
+                // Use MutationObserver to watch for loading class changes on the spinner
+                this.$nextTick(() => {
+                    const spinner = document.getElementById('spinner-container');
+                    if (spinner) {
+                        const observer = new MutationObserver((mutations) => {
+                            mutations.forEach((mutation) => {
+                                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                                    if (spinner.classList.contains('is-loading')) {
+                                        this.scrollToBottom();
+                                    }
+                                }
+                            });
+                        });
+
+                        observer.observe(spinner, {
+                            attributes: true,
+                            attributeFilter: ['class']
+                        });
+                    }
+                });
+            }
+        }" @messageReceived.window="scrollToBottom()" @messageSent.window="scrollToBottom()">
 			<!-- Model Profile Selector -->
 			@if(!empty($availableProfiles))
 				<div class="mb-3 flex items-center gap-2 text-sm">
@@ -14,14 +52,67 @@
 							<option value="{{ $p['id'] }}">{{ $p['name'] }} ({{ $p['model_id'] }})</option>
 						@endforeach
 					</select>
-					<a href="{{ route('filament.admin.resources.model-profiles.index') }}" class="text-primary-600 dark:text-primary-400 hover:underline" target="_blank">manage</a>
+					<a href="{{ route('filament.admin.resources.hf-chat-models.index') }}" class="text-primary-600 dark:text-primary-400 hover:underline" target="_blank">manage</a>
 				</div>
 			@endif
+
+			<!-- API Key Input for Profiles -->
+			@if($showProfileApiKeyPrompt && $selectedProfileId && $profileApiKeyInput === null)
+				@php
+					$selectedProfile = collect($availableProfiles)->firstWhere('id', $selectedProfileId);
+				@endphp
+				@if($selectedProfile && $selectedProfile['provider'] !== 'ollama')
+					<div class="mb-4 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+						<div class="flex items-start gap-3">
+							<x-filament::icon icon="heroicon-o-exclamation-triangle" class="text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+							<div class="flex-1">
+								<h4 class="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">
+									API Key Required for "{{ $selectedProfile['name'] }}"
+								</h4>
+								<p class="text-sm text-amber-700 dark:text-amber-300 mb-3">
+									Authentication failed. Please enter a valid API key for this profile and try again.
+								</p>
+								<div class="flex items-center gap-3">
+									<x-filament::input.wrapper class="flex-1">
+										<x-filament::input
+											type="password"
+											wire:model.defer="profileApiKeyInput"
+											placeholder="Enter API key for {{ $selectedProfile['name'] }}"
+											class="w-full"
+										/>
+									</x-filament::input.wrapper>
+									<x-filament::button
+										size="sm"
+										wire:click="saveProfileApiKey"
+										icon="heroicon-o-key"
+										:disabled="empty($profileApiKeyInput)"
+									>
+										Save API Key
+									</x-filament::button>
+								</div>
+							</div>
+						</div>
+					</div>
+				@endif
+			@endif
+
 			@if(empty($messages))
-				<div wire:loading.remove wire:target="send" class="hf-empty-state">
-					<x-filament::icon icon="heroicon-o-chat-bubble-left-right" class="hf-empty-icon" />
-					<h3 class="text-lg font-medium mb-2 mt-2">Start a conversation</h3>
-					<p class="text-sm">Ask me anything...</p>
+				<!-- Combined overlay: placeholder + spinner share the same centered container -->
+				<div class="hf-overlay" aria-hidden="true" wire:target="send">
+					<div wire:loading.remove wire:target="send" class="hf-empty-state">
+						<div class="flex flex-col items-center justify-center space-y-4">
+							<x-filament::icon icon="heroicon-o-chat-bubble-left-right" class="hf-empty-icon" />
+							<div class="text-center">
+								<h3 class="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">Start a conversation</h3>
+								<p class="text-base text-gray-600 dark:text-gray-400">Ask me anything...</p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Loading indicator (remains inside overlay) -->
+					<div wire:loading.class="is-loading" id="spinner-container" class="hf-center-loader" aria-hidden="true" x-ref="spinner" wire:target="send">
+						<div class="hf-yellow-spinner"></div>
+					</div>
 				</div>
 			@else
 				@foreach($messages as $index => $message)
@@ -41,7 +132,7 @@
 			@endif
 
 			<!-- Loading indicator -->
-            <div wire:target="send" wire:loading.class="is-loading" id="spinner-container" class="hf-center-loader" aria-hidden="true">
+            <div wire:target="send" wire:loading.class="is-loading" id="spinner-container" class="hf-center-loader" aria-hidden="true" x-ref="spinner">
 				<div class="hf-yellow-spinner"></div>
 			</div>
 		</div>
@@ -61,7 +152,7 @@
 		@elseif($viewMode === 'profiles')
 		<div class="p-4 space-y-6">
 			<x-filament::section>
-				<x-slot name="heading">Model Profiles</x-slot>
+				<x-slot name="heading">HF Models</x-slot>
 				@if(empty($availableProfiles))
 					<div class="text-xs text-gray-500">Debug: viewMode=profiles, availableProfiles is empty (count=0). If you expected items, ensure loadProfiles() runs in showProfiles() and Livewire component refreshed.</div>
 				@endif
@@ -87,7 +178,7 @@
 								<td class="px-3 py-1.5 flex gap-1">
 									<button type="button" wire:click="$set('selectedProfileId', {{ $p['id'] }})" class="fi-btn fi-size-xs fi-color-primary">Use</button>
 									<button type="button" wire:click="editProfile({{ $p['id'] }})" class="fi-btn fi-size-xs fi-color-gray">Edit</button>
-									<button type="button" wire:click="deleteProfile({{ $p['id'] }})" class="fi-btn fi-size-xs fi-color-danger" onclick="return confirm('Delete this profile?')">Del</button>
+									<button type="button" x-on:click="if (confirm('Delete this profile?')) { $wire.deleteProfile({{ $p['id'] }}) }" class="fi-btn fi-size-xs fi-color-danger">Del</button>
 								</td>
 							</tr>
 							@empty

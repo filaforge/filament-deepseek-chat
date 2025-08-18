@@ -10,6 +10,21 @@ return [
 	'allow_roles' => [],
 	'admin_roles' => [],
 	'timeout' => env('HF_TIMEOUT', 60),
+
+	// Default HF models to create if they don't exist
+	'default_profiles' => [
+		[
+			'name' => 'Default Llama',
+			'provider' => 'huggingface',
+			'model_id' => 'meta-llama/Meta-Llama-3-8B-Instruct',
+			'base_url' => 'https://api-inference.huggingface.co',
+			'api_key' => null,
+			'stream' => false,
+			'timeout' => 120,
+			'system_prompt' => 'You are a helpful AI assistant powered by Llama 3.',
+			'is_active' => true,
+		],
+	],
 ];
 
 

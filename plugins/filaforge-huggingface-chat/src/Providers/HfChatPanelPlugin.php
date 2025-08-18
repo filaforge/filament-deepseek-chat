@@ -3,6 +3,9 @@
 namespace Filaforge\HuggingfaceChat\Providers;
 
 use Filaforge\HuggingfaceChat\Pages\HfChatPage;
+use Filaforge\HuggingfaceChat\Pages\HfConversationsPage;
+use Filaforge\HuggingfaceChat\Pages\HfSettingsPage;
+use Filaforge\HuggingfaceChat\Resources\ModelProfileResource;
 use Filament\Contracts\Plugin as PluginContract;
 use Filament\Panel;
 
@@ -20,8 +23,12 @@ class HfChatPanelPlugin implements PluginContract
 
 	public function register(Panel $panel): void
 	{
+		// Register pages and resources
 		$panel->pages([
 			HfChatPage::class,
+			HfConversationsPage::class,
+		])->resources([
+			ModelProfileResource::class,
 		]);
 	}
 

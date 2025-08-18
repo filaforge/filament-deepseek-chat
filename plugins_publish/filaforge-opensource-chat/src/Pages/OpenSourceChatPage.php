@@ -18,6 +18,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filaforge\OpensourceChat\Models\Conversation;
 use Filaforge\OpensourceChat\Models\Setting;
 use Filaforge\OpensourceChat\Models\ModelProfile;
+use Filaforge\OpensourceChat\Services\ChatApiService;
 
 /**
  * Simplified open source chat page modeled after HuggingFace chat page.
@@ -34,7 +35,7 @@ class OpenSourceChatPage extends Page implements Tables\Contracts\HasTable, HasF
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-chat-bubble-oval-left-ellipsis';
     protected static ?string $navigationLabel = 'OS Chat';
     protected static ?string $title = 'Open Source Chat';
-    protected static \UnitEnum|string|null $navigationGroup = 'System';
+    protected static \UnitEnum|string|null $navigationGroup = 'OS Chat';
     protected static ?int $navigationSort = 50;
     protected string $view = 'opensource-chat::pages.chat';
 
@@ -78,7 +79,7 @@ class OpenSourceChatPage extends Page implements Tables\Contracts\HasTable, HasF
     /* ================= Profiles ================= */
     protected function loadProfiles(): void
     {
-        $this->availableProfiles = ModelProfile::query()->orderBy('name')->get([
+        $this->availableProfiles = ModelProfile::query()->where('is_active', true)->orderBy('name')->get([
             'id','name','provider','model_id','stream','timeout'
         ])->map(fn($p)=>[
             'id'=>(int)$p->id,
@@ -120,7 +121,7 @@ class OpenSourceChatPage extends Page implements Tables\Contracts\HasTable, HasF
     public function newProfile(): void
     {
         $this->editingProfileId = null;
-        $this->profileForm = [ 'name'=>'','provider'=>'opensource','model_id'=>'','base_url'=>'','api_key'=>'','stream'=>true,'timeout'=>60,'system_prompt'=>'' ];
+        $this->profileForm = [ 'name'=>'','provider'=>'opensource','model_id'=>'','base_url'=>'','api_key'=>'','stream'=>true,'is_active'=>true,'timeout'=>60,'system_prompt'=>'' ];
         $this->showProfileForm = true;
         $this->viewMode = 'profiles';
     }
@@ -147,6 +148,7 @@ class OpenSourceChatPage extends Page implements Tables\Contracts\HasTable, HasF
                     'base_url' => $data['base_url'] ?: null,
                     'api_key' => $data['api_key'] ?: null,
                     'stream' => (bool) $data['stream'],
+                    'is_active' => array_key_exists('is_active',$data) ? (bool)$data['is_active'] : true,
                     'timeout' => (int) ($data['timeout'] ?: 60),
                     'system_prompt' => $data['system_prompt'] ?: null,
                 ]);
@@ -159,11 +161,12 @@ class OpenSourceChatPage extends Page implements Tables\Contracts\HasTable, HasF
                 'base_url' => $data['base_url'] ?: null,
                 'api_key' => $data['api_key'] ?: null,
                 'stream' => (bool) $data['stream'],
+                'is_active' => array_key_exists('is_active',$data) ? (bool)$data['is_active'] : true,
                 'timeout' => (int) ($data['timeout'] ?: 60),
                 'system_prompt' => $data['system_prompt'] ?: null,
             ]);
         }
-        $this->profileForm = [ 'name'=>'','provider'=>'opensource','model_id'=>'','base_url'=>'','api_key'=>'','stream'=>true,'timeout'=>60,'system_prompt'=>'' ];
+        $this->profileForm = [ 'name'=>'','provider'=>'opensource','model_id'=>'','base_url'=>'','api_key'=>'','stream'=>true,'is_active'=>true,'timeout'=>60,'system_prompt'=>'' ];
         $this->editingProfileId = null;
         $this->showProfileForm = false;
         $this->loadProfiles();
@@ -183,6 +186,7 @@ class OpenSourceChatPage extends Page implements Tables\Contracts\HasTable, HasF
             'base_url' => (string)($p->base_url ?? ''),
             'api_key' => '',
             'stream' => (bool)$p->stream,
+            'is_active' => (bool)($p->is_active ?? true),
             'timeout' => (int)($p->timeout ?? 60),
             'system_prompt' => (string)($p->system_prompt ?? ''),
         ];
@@ -321,28 +325,93 @@ class OpenSourceChatPage extends Page implements Tables\Contracts\HasTable, HasF
     {
         $content = trim((string) $this->userInput);
         if ($content === '') { return; }
+        
         $this->messages[] = ['role'=>'user','content'=>$content];
         $this->userInput = '';
         $this->dispatch('messageSent');
 
+        try {
+            // Get the selected profile or use default settings
+            $profile = $this->selectedProfileId ? ModelProfile::find($this->selectedProfileId) : null;
+            
+            if (!$profile) {
+                // Fallback to legacy settings if no profile selected
+                $this->sendLegacyMessage();
+                return;
+            }
+
+            // Use the new ChatApiService
+            $chatService = new ChatApiService($profile);
+            
+            // Prepare messages for API
+            $apiMessages = [];
+            foreach ($this->messages as $message) {
+                $apiMessages[] = [
+                    'role' => $message['role'] === 'assistant' ? 'assistant' : 'user',
+                    'content' => $message['content']
+                ];
+            }
+
+            // Send request using the service
+            $response = $chatService->chatCompletion($apiMessages, $profile->stream);
+            
+            // Extract the assistant's reply
+            $reply = $this->extractReplyFromResponse($response, $profile->provider);
+            
+            $this->messages[] = ['role'=>'assistant','content'=>$reply];
+            
+            // Save conversation if user is authenticated
+            $user = auth()->user();
+            if ($user) {
+                if ($this->conversationId) {
+                    $conv = Conversation::find($this->conversationId);
+                    if ($conv && $conv->user_id === $user->id) { 
+                        $conv->update(['messages'=>$this->messages]); 
+                    }
+                } else {
+                    $conv = Conversation::create([
+                        'user_id'=>$user->id,
+                        'title'=>str($content)->limit(60),
+                        'messages'=>$this->messages
+                    ]);
+                    $this->conversationId = $conv->id;
+                }
+                $this->loadConversations();
+            }
+            
+            $this->dispatch('messageReceived');
+            
+        } catch (\Throwable $e) {
+            $this->messages[] = ['role'=>'assistant','content'=>'Request failed: '.$e->getMessage()];
+            $this->dispatch('messageReceived');
+        }
+    }
+
+    /**
+     * Extract reply content from API response based on provider
+     */
+    protected function extractReplyFromResponse(array $response, string $provider): string
+    {
+        return match($provider) {
+            'openai' => (string) data_get($response, 'choices.0.message.content', 'No response.'),
+            'huggingface' => (string) data_get($response, 'choices.0.message.content', 'No response.'),
+            'ollama' => (string) data_get($response, 'choices.0.message.content', 'No response.'),
+            default => (string) data_get($response, 'choices.0.message.content', 'No response.'),
+        };
+    }
+
+    /**
+     * Legacy message sending for backward compatibility
+     */
+    protected function sendLegacyMessage(): void
+    {
         $base = rtrim((string) ($this->settings['base_url'] ?? config('opensource-chat.base_url')), '/');
         $model = trim((string) ($this->settings['model_id'] ?? config('opensource-chat.default_model_id')));
         $useOpenAi = (bool) config('opensource-chat.use_openai', true);
 
-        // Profile overrides
-        $profile = $this->selectedProfileId ? ModelProfile::find($this->selectedProfileId) : null;
-        if ($profile) {
-            $model = $profile->model_id ?: $model;
-            if ($profile->base_url) { $base = rtrim($profile->base_url,'/'); }
-            // If provider is ollama and no explicit base given, default to config ollama base
-            if (!$profile->base_url && strtolower((string) $profile->provider) === 'ollama') {
-                $base = rtrim((string) config('opensource-chat.ollama.base_url', 'http://localhost:11434'), '/');
-            }
-        }
-
         $prompt = $this->buildPrompt($this->messages);
         try {
-            $isOllama = str_contains($base, 'localhost:11434') || str_contains($base, '127.0.0.1:11434') || ($profile && strtolower((string) $profile->provider) === 'ollama');
+            $isOllama = str_contains($base, 'localhost:11434') || str_contains($base, '127.0.0.1:11434');
             $req = Http::acceptJson()
                 ->timeout((int) config('opensource-chat.timeout',120))
                 ->connectTimeout((int) config('opensource-chat.connect_timeout',30));
@@ -470,6 +539,7 @@ class OpenSourceChatPage extends Page implements Tables\Contracts\HasTable, HasF
                     TextColumn::make('name')->label('Name')->sortable()->searchable(),
                     TextColumn::make('model_id')->label('Model')->limit(40)->tooltip(fn($r)=>$r->model_id),
                     TextColumn::make('provider')->label('Provider')->toggleable(isToggledHiddenByDefault: true),
+                    \Filament\Tables\Columns\IconColumn::make('is_active')->label('Active')->boolean(),
                     TextColumn::make('updated_at')->since()->label('Updated'),
                 ])
                 ->actions([

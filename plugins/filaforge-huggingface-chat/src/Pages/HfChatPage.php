@@ -17,6 +17,7 @@ use Filaforge\HuggingfaceChat\Models\Conversation;
 use Filaforge\HuggingfaceChat\Models\Setting;
 use Filaforge\HuggingfaceChat\Models\ModelProfile;
 use Filaforge\HuggingfaceChat\Models\ModelProfileUsage;
+use Filament\Notifications\Notification;
 
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -28,7 +29,7 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 	protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-chat-bubble-oval-left-ellipsis';
 	protected string $view = 'huggingface-chat::pages.chat';
 	protected static ?string $navigationLabel = 'HF Chat';
-	protected static \UnitEnum|string|null $navigationGroup = 'System';
+	protected static \UnitEnum|string|null $navigationGroup = 'HF Chat';
 	protected static ?int $navigationSort = 10;
 	protected static ?string $title = 'HF Chat';
 
@@ -43,6 +44,8 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 	public array $settingsForm = [];
 	public ?array $settingsData = [];
     public string $viewMode = 'chat';
+	public ?string $profileApiKeyInput = null; // new property for profile API key input
+	public bool $showProfileApiKeyPrompt = false; // show prompt only after unauthorized
 	public array $profileForm = [
 		'name' => '',
 		'provider' => 'huggingface',
@@ -65,7 +68,7 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 		$this->conversationId = null;
 		$this->canViewAllChats = $this->canViewAllChats();
 		$this->hfApiKey = auth()->user()?->hf_api_key;
-        $this->selectedModelId = (string) config('hf-chat.model_id', 'meta-llama/Meta-Llama-3-8B-Instruct');
+        $this->selectedModelId = (string) config('hf-chat.model_id', 'microsoft/DialoGPT-medium');
         $this->loadSettings();
 		$this->loadProfiles();
 		$this->restoreUserLastProfile();
@@ -74,13 +77,18 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 		if ($this->canViewAllChats) {
 			$this->loadAllConversations();
 		}
+		$open = (string) request()->query('open', '');
+		if ($open === 'settings') {
+			$this->showSettings();
+		}
 	}
 
 	protected function loadProfiles(): void
 	{
 		$this->availableProfiles = ModelProfile::query()
+			->where('is_active', true)
 			->orderBy('name')
-			->get(['id','name','provider','model_id','stream','timeout'])
+			->get(['id','name','provider','model_id','stream','timeout','api_key'])
 			->map(fn($p)=>[
 				'id'=>(int)$p->id,
 				'name'=>(string)$p->name,
@@ -88,6 +96,7 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 				'model_id'=>(string)$p->model_id,
 				'stream'=>(bool)$p->stream,
 				'timeout'=>(int)($p->timeout ?? 60),
+				'api_key'=>(string)($p->api_key ?? ''),
 			])->all();
 	}
 
@@ -108,6 +117,9 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 		if ($user) {
 			$user->forceFill(['hf_last_profile_id' => $value ?: null])->save();
 		}
+		// Clear any pending API key input and hide prompt
+		$this->profileApiKeyInput = null;
+		$this->showProfileApiKeyPrompt = false;
 		// Reset conversation context
 		$this->newConversation();
 	}
@@ -195,17 +207,28 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 
 	public function deleteProfile(int $id): void
 	{
-		$p = ModelProfile::find($id);
-		if ($p) { $p->delete(); }
-		if ($this->selectedProfileId === $id) { $this->selectedProfileId = null; }
-		if ($this->editingProfileId === $id) { $this->editingProfileId = null; }
-		$this->loadProfiles();
-		$this->restoreUserLastProfile();
+		try {
+			$p = ModelProfile::find($id);
+			if (! $p) {
+				Notification::make()->title('Not found')->danger()->body('Profile not found.')->send();
+				return;
+			}
+			$p->delete();
+			// clear selection if needed
+			if ($this->selectedProfileId === $id) { $this->selectedProfileId = null; }
+			if ($this->editingProfileId === $id) { $this->editingProfileId = null; }
+			$this->loadProfiles();
+			$this->restoreUserLastProfile();
+			Notification::make()->title('Deleted')->success()->body('Profile deleted successfully.')->send();
+		} catch (\Exception $e) {
+			Notification::make()->title('Error')->danger()->body('Failed to delete profile.')->send();
+			report($e);
+		}
 	}
 
 	public function table(Table $table): Table
 	{
-		// Dynamic table: show conversations (default) or model profiles when in profiles view
+		// Dynamic table: show conversations (default) or hf models when in models view
 		if ($this->viewMode === 'profiles') {
 			return $table
 				->query(ModelProfile::query()->orderBy('name'))
@@ -258,6 +281,7 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 			->defaultPaginationPageOption(10)
 			->columns([
 				TextColumn::make('title')->label('Title')->searchable()->sortable()->limit(60)->wrap(false),
+				TextColumn::make('model')->label('Model')->limit(40),
 				TextColumn::make('user.name')->label('User')->visible($this->canViewAllChats),
 				TextColumn::make('messages_count')->label('Messages')->visible((bool) $expr)->sortable(['messages_count'])->formatStateUsing(fn ($state) => (string) ($state ?? 0)),
 				TextColumn::make('updated_at')->label('Updated')->dateTime()->sortable(),
@@ -354,6 +378,8 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 	{
 		$this->conversationId = null;
 		$this->messages = [];
+		$this->profileApiKeyInput = null; // Clear any pending API key input
+		$this->showProfileApiKeyPrompt = false;
 	}
 
 	public function openConversation(int $id): void
@@ -465,6 +491,8 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
     {
         $this->viewMode = 'chat';
 		$this->showProfileForm = false;
+		$this->profileApiKeyInput = null; // Clear any pending API key input
+		$this->showProfileApiKeyPrompt = false;
     }
 
 	public function showConversations(): void
@@ -533,14 +561,6 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
         $base = rtrim((string) ($this->settings['base_url'] ?? config('hf-chat.base_url')), '/');
         $model = trim((string) ($this->selectedModelId ?: ($this->settings['model_id'] ?? config('hf-chat.model_id', 'meta-llama/Meta-Llama-3-8B-Instruct'))));
 
-		if (!$apiKey) {
-			$this->messages[] = ['role' => 'assistant', 'content' => 'Missing Hugging Face API token. Set HF_API_TOKEN or save it in your profile.'];
-			$this->dispatch('messageReceived');
-			return;
-		}
-
-		$prompt = $this->buildPrompt($this->messages);
-
 		// Resolve model/profile configuration
 		$profile = $this->selectedProfileId ? ModelProfile::find($this->selectedProfileId) : null;
 		if ($profile) {
@@ -551,6 +571,8 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 			if ($profile->api_key) { $apiKey = $profile->api_key; }
 			// override streaming etc. (future enhancement)
 		}
+
+		$prompt = $this->buildPrompt($this->messages);
 
 		try {
             $endpointBase = $base;
@@ -592,7 +614,7 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 				$err = (array) $response->json('error');
 				$msg = strtolower((string) ($err['message'] ?? ''));
 				$code = strtolower((string) ($err['code'] ?? ''));
-				if (str_contains($msg, 'not a chat model') || str_contains($code, 'model_not_supported')) {
+				if (str_contains($msg, 'not a chat model') || str_contains($code, 'model_not_supported') || str_contains($msg, 'does not exist') || str_contains($code, 'model_not_found')) {
 					$useOpenAi = false; // disable for downstream formatting
 					$response = Http::withToken($apiKey)
 						->acceptJson()
@@ -655,8 +677,26 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 			}
 
 			if ($response->failed()) {
+				// Handle unauthorized: now prompt for API key input
+				if (in_array($response->status(), [401, 403], true)) {
+					$this->showProfileApiKeyPrompt = (bool) $this->selectedProfileId;
+					$profName = $profile?->name ?: 'current model';
+					$this->messages[] = ['role' => 'assistant', 'content' => "Authentication failed (".$response->status()."). Please add an API key for '{$profName}' and try again."];
+					$this->dispatch('messageReceived');
+					return;
+				}
+
 				$body = (string) $response->body();
-				$this->messages[] = ['role' => 'assistant', 'content' => 'HF API error: '.$response->status().' '.str($body)->limit(300)];
+				$error = $response->json()['error'] ?? [];
+				$errorMessage = $error['message'] ?? 'Unknown error';
+
+				// Provide helpful error messages for common issues
+				if (str_contains(strtolower($errorMessage), 'does not exist') || str_contains(strtolower($errorMessage), 'model_not_found')) {
+					$helpfulMessage = "⚠️ Model '{$model}' not found. Please check your available models in HF Models or add new ones.";
+					$this->messages[] = ['role' => 'assistant', 'content' => $helpfulMessage];
+				} else {
+					$this->messages[] = ['role' => 'assistant', 'content' => 'HF API error: '.$response->status().' '.str($body)->limit(300)];
+				}
 				$this->dispatch('messageReceived');
 				return;
 			}
@@ -674,12 +714,13 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 				if ($this->conversationId) {
 					$conv = Conversation::find($this->conversationId);
 					if ($conv && $conv->user_id === $user->id) {
-						$conv->update(['messages' => $this->messages]);
+						$conv->update(['messages' => $this->messages, 'model' => $model]);
 					}
 				} else {
 					$conv = Conversation::create([
 						'user_id' => $user->id,
 						'title' => str($content)->limit(60),
+						'model' => $model,
 						'messages' => $this->messages,
 					]);
 					$this->conversationId = $conv->id;
@@ -761,12 +802,6 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 				->color($mode === 'conversations' ? 'primary' : 'gray')
 				->action(fn () => $this->showConversations())
 				->extraAttributes(['id' => 'hf-conversations-btn', 'wire:key' => 'hf-conversations-btn', 'type' => 'button']),
-			Action::make('hf_model_profiles_btn')
-				->label('Profiles')
-				->icon('heroicon-o-cog-8-tooth')
-				->color($mode === 'profiles' ? 'primary' : 'gray')
-				->action(fn () => $this->showProfiles())
-				->extraAttributes(['id' => 'hf-model-profiles-btn', 'wire:key' => 'hf-model-profiles-btn', 'type' => 'button']),
 			Action::make('hf_settings_btn')
 				->label('Settings')
 				->icon('heroicon-o-cog-6-tooth')
@@ -809,6 +844,35 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 			$out[] = ['role' => $role, 'content' => (string) $m['content']];
 		}
 		return $out;
+	}
+
+	/**
+	 * Save the API key input for the current model profile
+	 */
+	public function saveProfileApiKey(): void
+	{
+		if (!$this->selectedProfileId || !$this->profileApiKeyInput) {
+			return;
+		}
+
+		$profile = ModelProfile::find($this->selectedProfileId);
+		if (!$profile) {
+			return;
+		}
+
+		// Update the profile with the new API key
+		$profile->update(['api_key' => $this->profileApiKeyInput]);
+
+		// Clear the input and hide prompt
+		$this->profileApiKeyInput = null;
+		$this->showProfileApiKeyPrompt = false;
+
+		// Reload profiles to reflect the change
+		$this->loadProfiles();
+
+		// Show success message
+		$this->messages[] = ['role' => 'assistant', 'content' => "✅ API key saved for '{$profile->name}' profile. You can now use this model."];
+		$this->dispatch('messageReceived');
 	}
 }
 

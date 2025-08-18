@@ -4,12 +4,14 @@ namespace Filaforge\OpensourceChat\Pages;
 
 use Filament\Pages\Page;
 use Filament\Notifications\Notification;
+use Filaforge\OpensourceChat\Models\Setting;
 
 class OpenSourceSettingsPage extends Page
 {
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-cog-6-tooth';
     protected static ?string $navigationLabel = 'OS Chat Settings';
     protected static ?string $title = 'Open Source Chat Settings';
+    protected static \UnitEnum|string|null $navigationGroup = 'OS Chat';
     protected static ?int $navigationSort = 51;
     protected string $view = 'opensource-chat::pages.settings';
 
@@ -17,14 +19,23 @@ class OpenSourceSettingsPage extends Page
 
     public function mount(): void
     {
-        $this->apiKey = auth()->user()?->oschat_api_key; // placeholder column if added later
+        $userId = auth()->id();
+        if ($userId) {
+            $record = Setting::query()->where('user_id', $userId)->latest('id')->first();
+            $this->apiKey = $record->api_key ?? null;
+        }
     }
 
     public function save(): void
     {
-        $user = auth()->user();
-        if (! $user) { return; }
-        $user->forceFill(['oschat_api_key' => $this->apiKey])->save();
+        $userId = auth()->id();
+        if (! $userId) { return; }
+
+        Setting::updateOrCreate(
+            ['user_id' => $userId],
+            ['api_key' => $this->apiKey, 'user_id' => $userId]
+        );
+
         Notification::make()->title('Saved')->success()->send();
     }
 

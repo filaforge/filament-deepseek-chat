@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Filament\Resources\ModelProfileResource\Pages;
+namespace Filaforge\HuggingfaceChat\Resources\ModelProfileResource\Pages;
 
-use App\Filament\Resources\ModelProfileResource;
+use Filaforge\HuggingfaceChat\Resources\ModelProfileResource;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Actions; 
+use Filament\Actions;
 
 class ListModelProfiles extends ListRecords
 {

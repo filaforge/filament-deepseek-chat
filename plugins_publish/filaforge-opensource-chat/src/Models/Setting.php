@@ -13,6 +13,7 @@ class Setting extends Model
         'user_id',
         'model_id',
         'base_url',
+    'api_key',
         'stream',
         'timeout',
         'system_prompt',

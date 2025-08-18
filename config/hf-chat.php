@@ -5,12 +5,26 @@ return [
 	'base_url' => env('HF_BASE_URL', 'https://api-inference.huggingface.co'),
 	'model_id' => env('HF_MODEL_ID', 'meta-llama/Meta-Llama-3-8B-Instruct'),
 	'stream' => env('HF_STREAM', false),
+	'use_openai' => env('HF_USE_OPENAI', true),
+	'system_prompt' => env('HF_SYSTEM_PROMPT', 'You are a helpful assistant.'),
 	'allow_roles' => [],
 	'admin_roles' => [],
-	// Total request timeout (seconds)
-	'timeout' => env('HF_TIMEOUT', 120),
-	// DNS/connect timeout (seconds) before giving up establishing the connection
-	'connect_timeout' => env('HF_CONNECT_TIMEOUT', 30),
+	'timeout' => env('HF_TIMEOUT', 60),
+
+	// Default HF models to create if they don't exist
+	'default_profiles' => [
+		[
+			'name' => 'Default Llama',
+			'provider' => 'huggingface',
+			'model_id' => 'meta-llama/Meta-Llama-3-8B-Instruct',
+			'base_url' => 'https://api-inference.huggingface.co',
+			'api_key' => null,
+			'stream' => false,
+			'timeout' => 120,
+			'system_prompt' => 'You are a helpful AI assistant powered by Llama 3.',
+			'is_active' => true,
+		],
+	],
 ];
 
 

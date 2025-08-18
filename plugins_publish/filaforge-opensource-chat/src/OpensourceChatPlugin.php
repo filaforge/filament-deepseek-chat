@@ -6,6 +6,7 @@ use Filament\Contracts\Plugin as PluginContract;
 use Filament\Panel;
 use Filaforge\OpensourceChat\Pages\OpenSourceChatPage;
 use Filaforge\OpensourceChat\Pages\OpenSourceSettingsPage;
+use Filaforge\OpensourceChat\Providers\OpensourceChatPanelPlugin;
 
 class OpensourceChatPlugin implements PluginContract
 {
@@ -21,10 +22,8 @@ class OpensourceChatPlugin implements PluginContract
 
     public function register(Panel $panel): void
     {
-        $panel->pages([
-            OpenSourceChatPage::class,
-            OpenSourceSettingsPage::class,
-        ]);
+    // Delegate to Providers\OpensourceChatPanelPlugin for registration
+    (new OpensourceChatPanelPlugin())->register($panel);
     }
 
     public function boot(Panel $panel): void

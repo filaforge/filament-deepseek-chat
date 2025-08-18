@@ -19,7 +19,7 @@ class HfConversationsPage extends Page implements Tables\Contracts\HasTable
 	protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-table-cells';
 	protected string $view = 'huggingface-chat::pages.conversations';
 	protected static ?string $navigationLabel = 'HF Conversations';
-	protected static \UnitEnum|string|null $navigationGroup = 'System';
+	protected static \UnitEnum|string|null $navigationGroup = 'HF Chat';
 	protected static ?int $navigationSort = 12;
 	protected static ?string $title = 'HF Conversations';
 
@@ -43,6 +43,7 @@ class HfConversationsPage extends Page implements Tables\Contracts\HasTable
 			->defaultPaginationPageOption(10)
 			->columns([
 				TextColumn::make('title')->label('Title')->searchable()->sortable()->limit(60)->wrap(false),
+				TextColumn::make('model')->label('Model')->toggleable(isToggledHiddenByDefault: false)->limit(40),
 				TextColumn::make('messages_count')->label('Messages')->visible((bool) $expr)->sortable(['messages_count'])->formatStateUsing(fn ($state) => (string) ($state ?? 0)),
 				TextColumn::make('updated_at')->label('Updated')->dateTime()->sortable(),
 			])

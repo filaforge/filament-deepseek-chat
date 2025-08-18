@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->string('base_url')->nullable();
             $table->string('api_key')->nullable();
             $table->boolean('stream')->default(true);
+            $table->boolean('is_active')->default(true);
             $table->unsignedInteger('timeout')->default(60);
             $table->text('system_prompt')->nullable();
             $table->json('extra')->nullable();

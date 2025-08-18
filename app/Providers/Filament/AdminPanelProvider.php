@@ -44,6 +44,9 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(fn () => view('filament.app.logo'))
             ->brandLogoHeight('1.25rem')
             ->navigationGroups([
+                'HF Chat',
+                'Chat AI',
+                'OS Chat',
                 'Shop',
                 'Blog',
             ])
@@ -69,22 +72,23 @@ class AdminPanelProvider extends PanelProvider
             ->plugin(\Filaforge\ApiExplorer\ApiExplorerPlugin::make())
             ->plugin(\Filaforge\DatabaseQuery\DatabaseQueryPlugin::make())
             ->plugin(\Filaforge\DatabaseViewer\DatabaseViewerPlugin::make())
+            ->plugin(\Filaforge\ChatAi\Providers\ChatAiPanelPlugin::make())
             ->plugin(\Filaforge\HuggingfaceChat\Providers\HfChatPanelPlugin::make())
+            ->plugin(\Filaforge\OpensourceChat\OpensourceChatPlugin::make())
             ->plugin(\Filaforge\HelloWidget\HelloWidgetPlugin::make())
             ->plugin(\Filaforge\SystemMonitor\SystemMonitorPlugin::make())
             ->plugin(\Filaforge\SystemPackages\SystemPackagesPlugin::make())
             ->plugin(\Filaforge\SystemTools\SystemToolsPlugin::make())
             ->plugin(\Filaforge\TerminalConsole\TerminalConsolePlugin::make())
             ->plugin(\Filaforge\ShellTerminal\FilaforgeShellTerminalPlugin::make())
-            ->plugin(\Filaforge\OpensourceChat\OpensourceChatPlugin::make())
             ->plugin(\Filaforge\Wirechat\WirechatPlugin::make())
             ->plugin(\Filaforge\UserManager\UserManagerPlugin::make())
             ->plugin(\Awcodes\QuickCreate\QuickCreatePlugin::make())
             ->plugin(\Filaforge\OllamaChat\Filament\OllamaChatPanelPlugin::make())
-            ->spa();
 
-            return $panel->colors([
+            ->colors([
                 'primary' => Color::Blue,
-            ]);
+            ])
+            ->spa();
     }
 }
