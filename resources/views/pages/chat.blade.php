@@ -136,11 +136,11 @@
                             Set your API key to start chatting
                         @endif
                     </h3>
-                    <p class="text-sm">
+                    <p class="text-sm" style="margin-top: 20px;">
                         @if($this->hasApiKey())
                             Ask me anything...
                         @else
-                            You need to set your DeepSeek API key to start chatting.
+                            You need to get your API key <a href="https://platform.deepseek.com/api_keys" target="_blank" class="text-blue-600 hover:text-blue-800 underline">here</a> to start chatting.
                         @endif
                     </p>
                     @if(!$this->hasApiKey())
@@ -313,15 +313,17 @@
                     >
                         New Chat
                     </x-filament::button>
-                    <x-filament::button
-                        color="gray"
-                        icon="heroicon-o-key"
-                        class="mr-2"
-                        style="margin-right: 0.5rem;"
-                        @click.prevent="$dispatch('open-modal', { id: 'set-api-key-modal' })"
-                    >
-                        Set API Key
-                    </x-filament::button>
+                    @if(!$this->hasApiKey())
+                        <x-filament::button
+                            color="gray"
+                            icon="heroicon-o-key"
+                            class="mr-2"
+                            style="margin-right: 0.5rem;"
+                            @click.prevent="$dispatch('open-modal', { id: 'set-api-key-modal' })"
+                        >
+                            Set API Key
+                        </x-filament::button>
+                    @endif
                 </div>
 
                 <!-- Right group: Conversations + Send -->

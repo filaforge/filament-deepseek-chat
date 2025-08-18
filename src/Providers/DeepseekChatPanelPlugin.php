@@ -23,6 +23,7 @@ class DeepseekChatPanelPlugin implements PluginContract
     {
         $panel->pages([
             DeepseekChatPage::class,
+            DeepseekSettingsPage::class,
         ]);
     }
 

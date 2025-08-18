@@ -406,6 +406,12 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
     protected function getHeaderActions(): array
     {
         return [
+            // Settings button in header
+            \Filament\Actions\Action::make('settings')
+                ->label('Settings')
+                ->icon('heroicon-o-cog-6-tooth')
+                ->color('gray')
+                ->url(route('filament.admin.pages.deepseek-settings')),
             // Keep registered but hidden; UI buttons live in the page body
             SetApiKey::make()->hidden()
         ];
