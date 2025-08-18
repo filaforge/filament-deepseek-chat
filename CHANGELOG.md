@@ -2,6 +2,15 @@
 
 All notable changes to `filaforge/deepseek-chat` will be documented in this file.
 
+## v0.8.1 - 2025-08-18
+- **IMPROVED**: Better UI and user experience
+- **NEW**: Settings action button in top right header
+- **IMPROVED**: Empty state text now includes hyperlink to DeepSeek platform
+- **IMPROVED**: Better spacing with margin-top styling
+- **IMPROVED**: Set API Key button only shows when needed
+- **FIXED**: DeepseekSettingsPage now properly registered in panel
+- **IMPROVED**: Cleaner interface with conditional button visibility
+
 ## v0.8.0 - 2025-08-18
 - **STABLE RELEASE**: Clean, working version with all fixes applied
 - **FIXED**: All version mismatches in git tags resolved
