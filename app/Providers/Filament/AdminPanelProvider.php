@@ -85,7 +85,9 @@ class AdminPanelProvider extends PanelProvider
             ->plugin(\Filaforge\UserManager\UserManagerPlugin::make())
             ->plugin(\Awcodes\QuickCreate\QuickCreatePlugin::make())
             ->plugin(\Filaforge\OllamaChat\Filament\OllamaChatPanelPlugin::make())
-
+            ->plugin(\Filaforge\HuggingfaceChat\Providers\HfChatPanelPlugin::make())
+    //        ->plugin(\Filaforge\DatabaseTools\Providers\FilaforgeDatabaseToolsPlugin::make())
+            ->plugin(\Filaforge\DeepseekChat\Providers\DeepseekChatPanelPlugin::make())
             ->colors([
                 'primary' => Color::Blue,
             ])

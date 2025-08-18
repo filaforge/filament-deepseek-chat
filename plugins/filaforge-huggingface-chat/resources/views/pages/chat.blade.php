@@ -187,7 +187,19 @@
 							</tbody>
 						</table>
 					</div>
+
+					<!-- Add New Profile Button -->
+					@if(!$showProfileForm)
 					<div class="pt-4">
+						<x-filament::button wire:click="newProfile" icon="heroicon-o-plus-circle" color="primary">
+							Add New Profile
+						</x-filament::button>
+					</div>
+					@endif
+
+					<!-- Add/Edit Profile Form -->
+					@if($showProfileForm)
+					<div class="pt-4 border-t border-gray-200 dark:border-gray-700">
 						<h4 class="text-sm font-semibold mb-2">{{ $editingProfileId ? 'Edit Profile' : 'Add New Profile' }}</h4>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
 							<x-filament::input label="Name" wire:model.defer="profileForm.name" />
@@ -208,14 +220,22 @@
 						<div class="mt-3 flex items-center gap-3">
 							<x-filament::button wire:click="saveProfile" icon="heroicon-o-plus-circle">{{ $editingProfileId ? 'Update Profile' : 'Save Profile' }}</x-filament::button>
 							@if($editingProfileId)
-							<x-filament::button color="gray" wire:click="$set('editingProfileId', null); $set('profileForm', { name: '', provider: 'huggingface', model_id: '', base_url: '', api_key: '', stream: true, timeout: 60, system_prompt: '' });" icon="heroicon-o-x-mark">Cancel</x-filament::button>
+							<x-filament::button color="gray" wire:click="cancelProfileForm" icon="heroicon-o-x-mark">Cancel</x-filament::button>
+							@else
+							<x-filament::button color="gray" wire:click="cancelProfileForm" icon="heroicon-o-x-mark">Cancel</x-filament::button>
 							@endif
-							<x-filament::button color="gray" wire:click="showChat" icon="heroicon-o-arrow-uturn-left">Back</x-filament::button>
 						</div>
+					</div>
+					@endif
+
+					<!-- Back Button -->
+					<div class="pt-4">
+						<x-filament::button color="gray" wire:click="showChat" icon="heroicon-o-arrow-uturn-left">Back to Chat</x-filament::button>
 					</div>
 				</div>
 			</x-filament::section>
 		</div>
+        @endif
 		@elseif($viewMode === 'conversations')
         <div class="p-4">
             <x-filament::section>

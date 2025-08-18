@@ -14,7 +14,7 @@
         "filaforge/chat-ai": "*@dev",
         "filaforge/database-query": "*",
         "filaforge/database-viewer": "*",
-        "filaforge/deepseek-chat": "*",
+        "filaforge/deepseek-chat": "^0.3.0",
         "filaforge/hello-widget": "*",
         "filaforge/huggingface-chat": "*@dev",
         "filaforge/ollama-chat": "*",

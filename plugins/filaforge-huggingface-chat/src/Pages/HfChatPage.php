@@ -144,6 +144,16 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 	{
 		$this->editingProfileId = null;
 		$this->showProfileForm = false;
+		$this->profileForm = [
+			'name' => '',
+			'provider' => 'huggingface',
+			'model_id' => '',
+			'base_url' => '',
+			'api_key' => '',
+			'stream' => true,
+			'timeout' => 60,
+			'system_prompt' => '',
+		];
 	}
 
 	public function saveProfile(): void
@@ -802,12 +812,12 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 				->color($mode === 'conversations' ? 'primary' : 'gray')
 				->action(fn () => $this->showConversations())
 				->extraAttributes(['id' => 'hf-conversations-btn', 'wire:key' => 'hf-conversations-btn', 'type' => 'button']),
-			Action::make('hf_settings_btn')
-				->label('Settings')
-				->icon('heroicon-o-cog-6-tooth')
-				->color($mode === 'settings' ? 'primary' : 'gray')
-				->action(fn () => $this->showSettings())
-				->extraAttributes(['id' => 'hf-settings-btn', 'wire:key' => 'hf-settings-btn', 'type' => 'button']),
+			Action::make('hf_models_btn')
+				->label('Models')
+				->icon('heroicon-o-cog-8-tooth')
+				->color($mode === 'profiles' ? 'primary' : 'gray')
+				->action(fn () => $this->showProfiles())
+				->extraAttributes(['id' => 'hf-models-btn', 'wire:key' => 'hf-models-btn', 'type' => 'button']),
 			Action::make('hf_new_chat_btn')
 				->label('New Chat')
 				->icon('heroicon-o-plus')
