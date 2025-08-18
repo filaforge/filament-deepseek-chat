@@ -1,0 +1,17 @@
+{
+  "name": "filaforge/wirechat-dashboard",
+  "description": "User dashboard with WireChat integration for Filament.",
+  "type": "library",
+  "autoload": {
+    "psr-4": {
+      "Filaforge\\WirechatDashboard\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Filaforge\\WirechatDashboard\\WirechatDashboardServiceProvider"
+      ]
+    }
+  }
+}

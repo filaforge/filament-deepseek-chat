@@ -1,0 +1,56 @@
+{
+    "name": "filaforge/shell-terminal",
+    "description": "A powerful shell terminal plugin for FilamentPHP with local assets and enhanced security",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "filament",
+        "terminal",
+        "shell",
+        "console",
+        "laravel",
+        "admin",
+        "panel"
+    ],
+    "authors": [
+        {
+            "name": "Filaforge Team",
+            "email": "filaforger@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "filament/filament": "^4.0",
+        "spatie/laravel-package-tools": "^1.16"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0|^9.0",
+        "phpunit/phpunit": "^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Filaforge\\ShellTerminal\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Filaforge\\ShellTerminal\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Filaforge\\ShellTerminal\\Providers\\FilaforgeShellTerminalServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

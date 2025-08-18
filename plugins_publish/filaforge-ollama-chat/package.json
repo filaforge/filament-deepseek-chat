@@ -1,0 +1,27 @@
+{
+  "name": "filaforge-ollama-chat",
+  "version": "1.0.0",
+  "description": "A chat plugin for Ollama integrated with Filament.",
+  "main": "src/OllamaChatPlugin.php",
+  "scripts": {
+    "build": "npm run build",
+    "watch": "npm run watch",
+    "lint": "eslint ."
+  },
+  "keywords": [
+    "chat",
+    "ollama",
+    "filament",
+    "plugin"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "vue": "^2.6.12"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "postcss": "^8.3.6"
+  }
+}

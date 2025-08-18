@@ -129,6 +129,11 @@ class DatabaseSeeder extends Seeder
             ->count(20)
             ->create());
         $this->command->info('Blog links created.');
+
+        // Model Profiles
+        $this->command->warn(PHP_EOL . 'Seeding model profiles...');
+        $this->call(ModelProfilesSeeder::class);
+        $this->command->info('Model profiles seeded.');
     }
 
     protected function withProgressBar(int $amount, Closure $createCollectionOfOne): Collection

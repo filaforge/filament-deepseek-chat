@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Filaforge\HuggingfaceChat\Models\Conversation;
 use Filaforge\HuggingfaceChat\Models\Setting;
+use Filaforge\HuggingfaceChat\Models\ModelProfile;
+use Filaforge\HuggingfaceChat\Models\ModelProfileUsage;
 
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -35,10 +37,24 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 	public ?int $conversationId = null;
     public ?string $hfApiKey = null;
     public ?string $selectedModelId = null;
+	public ?int $selectedProfileId = null; // new multi-profile support
+	public array $availableProfiles = [];
     public array $settings = [];
 	public array $settingsForm = [];
 	public ?array $settingsData = [];
     public string $viewMode = 'chat';
+	public array $profileForm = [
+		'name' => '',
+		'provider' => 'huggingface',
+		'model_id' => '',
+		'base_url' => '',
+		'api_key' => '',
+		'stream' => true,
+		'timeout' => 60,
+		'system_prompt' => '',
+	];
+	public ?int $editingProfileId = null;
+	public bool $showProfileForm = false;
 	/** @var array<int, array{id:int,title:?string,updated_at:string}> */
 	public array $conversationList = [];
 	public bool $canViewAllChats = false; // admin flag
@@ -51,6 +67,8 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 		$this->hfApiKey = auth()->user()?->hf_api_key;
         $this->selectedModelId = (string) config('hf-chat.model_id', 'meta-llama/Meta-Llama-3-8B-Instruct');
         $this->loadSettings();
+		$this->loadProfiles();
+		$this->restoreUserLastProfile();
 		$this->settingsForm = $this->settings; // legacy compatibility
 		$this->loadConversations();
 		if ($this->canViewAllChats) {
@@ -58,62 +76,222 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 		}
 	}
 
+	protected function loadProfiles(): void
+	{
+		$this->availableProfiles = ModelProfile::query()
+			->orderBy('name')
+			->get(['id','name','provider','model_id','stream','timeout'])
+			->map(fn($p)=>[
+				'id'=>(int)$p->id,
+				'name'=>(string)$p->name,
+				'provider'=>(string)$p->provider,
+				'model_id'=>(string)$p->model_id,
+				'stream'=>(bool)$p->stream,
+				'timeout'=>(int)($p->timeout ?? 60),
+			])->all();
+	}
+
+	protected function restoreUserLastProfile(): void
+	{
+		$user = auth()->user();
+		if ($user && $user->hf_last_profile_id) {
+			$this->selectedProfileId = (int) $user->hf_last_profile_id;
+		} elseif (!$this->selectedProfileId && !empty($this->availableProfiles)) {
+			$this->selectedProfileId = (int) $this->availableProfiles[0]['id'];
+		}
+	}
+
+	public function updatedSelectedProfileId($value): void
+	{
+		// Remember for user
+		$user = auth()->user();
+		if ($user) {
+			$user->forceFill(['hf_last_profile_id' => $value ?: null])->save();
+		}
+		// Reset conversation context
+		$this->newConversation();
+	}
+
+	public function showProfiles(): void
+	{
+		$this->loadProfiles();
+		$this->viewMode = 'profiles';
+		$this->showProfileForm = false; // start with table only
+		if (method_exists($this, 'resetTable')) { $this->resetTable(); }
+	}
+
+	public function newProfile(): void
+	{
+		$this->editingProfileId = null;
+		$this->profileForm = [ 'name'=>'','provider'=>'huggingface','model_id'=>'','base_url'=>'','api_key'=>'','stream'=>true,'timeout'=>60,'system_prompt'=>'' ];
+		$this->showProfileForm = true;
+		$this->viewMode = 'profiles';
+	}
+
+	public function cancelProfileForm(): void
+	{
+		$this->editingProfileId = null;
+		$this->showProfileForm = false;
+	}
+
+	public function saveProfile(): void
+	{
+		$data = $this->profileForm;
+		$data['name'] = trim((string) $data['name']);
+		$data['model_id'] = trim((string) $data['model_id']);
+		if ($data['name'] === '' || $data['model_id'] === '') { return; }
+		if ($this->editingProfileId) {
+			$profile = ModelProfile::find($this->editingProfileId);
+			if ($profile) {
+				$profile->update([
+					'name' => $data['name'],
+					'provider' => $data['provider'] ?: 'huggingface',
+					'model_id' => $data['model_id'],
+					'base_url' => $data['base_url'] ?: null,
+					'api_key' => $data['api_key'] ?: null,
+					'stream' => (bool) $data['stream'],
+					'timeout' => (int) ($data['timeout'] ?: 60),
+					'system_prompt' => $data['system_prompt'] ?: null,
+				]);
+			}
+		} else {
+			$profile = ModelProfile::create([
+				'name' => $data['name'],
+				'provider' => $data['provider'] ?: 'huggingface',
+				'model_id' => $data['model_id'],
+				'base_url' => $data['base_url'] ?: null,
+				'api_key' => $data['api_key'] ?: null,
+				'stream' => (bool) $data['stream'],
+				'timeout' => (int) ($data['timeout'] ?: 60),
+				'system_prompt' => $data['system_prompt'] ?: null,
+			]);
+		}
+		$this->profileForm = [ 'name'=>'','provider'=>'huggingface','model_id'=>'','base_url'=>'','api_key'=>'','stream'=>true,'timeout'=>60,'system_prompt'=>'' ];
+		$this->editingProfileId = null;
+		$this->showProfileForm = false;
+		$this->loadProfiles();
+		if (isset($profile) && $profile) { $this->selectedProfileId = (int) $profile->id; }
+		$this->restoreUserLastProfile();
+	}
+
+	public function editProfile(int $id): void
+	{
+		$p = ModelProfile::find($id);
+		if (! $p) return;
+		$this->editingProfileId = (int) $p->id;
+		$this->profileForm = [
+			'name' => (string)$p->name,
+			'provider' => (string)$p->provider,
+			'model_id' => (string)$p->model_id,
+			'base_url' => (string)($p->base_url ?? ''),
+			'api_key' => '', // never expose stored secret
+			'stream' => (bool)$p->stream,
+			'timeout' => (int)($p->timeout ?? 60),
+			'system_prompt' => (string)($p->system_prompt ?? ''),
+		];
+		$this->viewMode = 'profiles';
+		$this->showProfileForm = true; // open form
+	}
+
+	public function deleteProfile(int $id): void
+	{
+		$p = ModelProfile::find($id);
+		if ($p) { $p->delete(); }
+		if ($this->selectedProfileId === $id) { $this->selectedProfileId = null; }
+		if ($this->editingProfileId === $id) { $this->editingProfileId = null; }
+		$this->loadProfiles();
+		$this->restoreUserLastProfile();
+	}
+
 	public function table(Table $table): Table
 	{
-		// Conversations table only (settings now use a dedicated Filament form)
-        $query = Conversation::query();
+		// Dynamic table: show conversations (default) or model profiles when in profiles view
+		if ($this->viewMode === 'profiles') {
+			return $table
+				->query(ModelProfile::query()->orderBy('name'))
+				->columns([
+					TextColumn::make('name')->label('Name')->sortable()->searchable(),
+					TextColumn::make('model_id')->label('Model')->limit(40)->tooltip(fn($record)=>$record->model_id),
+					TextColumn::make('provider')->label('Provider')->toggleable(isToggledHiddenByDefault: true),
+					TextColumn::make('per_minute_limit')->label('Min')->toggleable(isToggledHiddenByDefault: true),
+					TextColumn::make('per_day_limit')->label('Day')->toggleable(isToggledHiddenByDefault: true),
+					TextColumn::make('updated_at')->since()->label('Updated'),
+				])
+				->actions([
+					Action::make('use')
+						->label('Use')
+						->icon('heroicon-o-check')
+						->color('primary')
+						->action(fn(ModelProfile $record) => $this->setProfile((int) $record->id)),
+					Action::make('editProfile')
+						->label('Edit')
+						->icon('heroicon-o-pencil-square')
+						->color('gray')
+						->action(fn(ModelProfile $record) => $this->editProfile((int) $record->id)),
+					Action::make('deleteProfile')
+						->label('Delete')
+						->icon('heroicon-o-trash')
+						->color('danger')
+						->requiresConfirmation()
+						->action(fn(ModelProfile $record) => $this->deleteProfile((int) $record->id)),
+				])
+				->emptyStateHeading('No profiles found.')
+				->defaultPaginationPageOption(10)
+				->striped();
+		}
 
-        if (! $this->canViewAllChats) {
-            $userId = (int) auth()->id();
-            $query->where('user_id', $userId);
-        } else {
-            $query->with('user:id,name');
-        }
+		// Conversations table
+		$query = Conversation::query();
+		if (! $this->canViewAllChats) {
+			$userId = (int) auth()->id();
+			$query->where('user_id', $userId);
+		} else {
+			$query->with('user:id,name');
+		}
+		$expr = $this->jsonArrayLengthExpr('messages');
+		if ($expr) {
+			$query->select($query->getModel()->getTable() . '.*')->selectRaw($expr . ' as messages_count');
+		}
+		$query->latest('updated_at');
+		return $table
+			->query($query)
+			->defaultPaginationPageOption(10)
+			->columns([
+				TextColumn::make('title')->label('Title')->searchable()->sortable()->limit(60)->wrap(false),
+				TextColumn::make('user.name')->label('User')->visible($this->canViewAllChats),
+				TextColumn::make('messages_count')->label('Messages')->visible((bool) $expr)->sortable(['messages_count'])->formatStateUsing(fn ($state) => (string) ($state ?? 0)),
+				TextColumn::make('updated_at')->label('Updated')->dateTime()->sortable(),
+			])
+			->filters([
+				SelectFilter::make('user_id')->label('User')->relationship('user', 'name')->visible($this->canViewAllChats),
+				TernaryFilter::make('has_replies')->label('Has replies')->queries(
+					true: function (Builder $q) use ($expr): Builder { return $expr ? $q->whereRaw($expr . ' > 1') : $q; },
+					false: function (Builder $q) use ($expr): Builder { return $expr ? $q->whereRaw($expr . ' <= 1') : $q; }
+				),
+			])
+			->actions([
+				Action::make('open')
+					->label('Open Chat')
+					->icon('heroicon-o-eye')
+					->color('gray')
+					->action(function (Conversation $record): void { $this->openConversation((int) $record->id); $this->showChat(); }),
+				Action::make('delete')
+					->label('Delete')
+					->icon('heroicon-o-trash')
+					->color('danger')
+					->requiresConfirmation()
+					->action(function (Conversation $record): void { if ($this->canViewAllChats) { $this->adminDeleteConversation((int) $record->id); } else { $this->deleteConversation((int) $record->id); } }),
+			])
+			->striped()
+			->emptyStateHeading('No chats found.');
+	}
 
-        $expr = $this->jsonArrayLengthExpr('messages');
-        if ($expr) {
-            $query->select($query->getModel()->getTable() . '.*')
-                ->selectRaw($expr . ' as messages_count');
-        }
-
-        $query->latest('updated_at');
-
-        return $table
-            ->query($query)
-            ->defaultPaginationPageOption(10)
-            ->columns([
-                TextColumn::make('title')->label('Title')->searchable()->sortable()->limit(60)->wrap(false),
-                TextColumn::make('user.name')->label('User')->visible($this->canViewAllChats),
-                TextColumn::make('messages_count')->label('Messages')->visible((bool) $expr)->sortable(['messages_count'])->formatStateUsing(fn ($state) => (string) ($state ?? 0)),
-                TextColumn::make('updated_at')->label('Updated')->dateTime()->sortable(),
-            ])
-            ->filters([
-                SelectFilter::make('user_id')->label('User')->relationship('user', 'name')->visible($this->canViewAllChats),
-                TernaryFilter::make('has_replies')->label('Has replies')->queries(
-                    true: function (Builder $q) use ($expr): Builder { return $expr ? $q->whereRaw($expr . ' > 1') : $q; },
-                    false: function (Builder $q) use ($expr): Builder { return $expr ? $q->whereRaw($expr . ' <= 1') : $q; }
-                ),
-            ])
-            ->actions([
-                Action::make('open')
-                    ->label('Open Chat')
-                    ->icon('heroicon-o-eye')
-                    ->color('gray')
-                    ->action(function (Conversation $record): void {
-                        $this->openConversation((int) $record->id);
-                        $this->showChat();
-                    }),
-                Action::make('delete')
-                    ->label('Delete')
-                    ->icon('heroicon-o-trash')
-                    ->color('danger')
-                    ->requiresConfirmation()
-                    ->action(function (Conversation $record): void {
-                        if ($this->canViewAllChats) { $this->adminDeleteConversation((int) $record->id); } else { $this->deleteConversation((int) $record->id); }
-                    }),
-            ])
-            ->striped()
-            ->emptyStateHeading('No chats found.');
+	public function setProfile(int $id): void
+	{
+		if (ModelProfile::query()->whereKey($id)->exists()) {
+			$this->selectedProfileId = $id;
+			$this->updatedSelectedProfileId($id);
+		}
 	}
 
 	private function jsonArrayLengthExpr(string $column): ?string
@@ -280,16 +458,20 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 		// Fill Filament form state if initialized
 		if (method_exists($this, 'form')) { $this->form->fill($this->settingsData); }
         $this->viewMode = 'settings';
+		$this->showProfileForm = false;
     }
 
     public function showChat(): void
     {
         $this->viewMode = 'chat';
+		$this->showProfileForm = false;
     }
 
 	public function showConversations(): void
 	{
 		$this->viewMode = 'conversations';
+		$this->showProfileForm = false;
+		if (method_exists($this, 'resetTable')) { $this->resetTable(); }
 	}
 
     public function newChatFromInput(): void
@@ -359,6 +541,17 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 
 		$prompt = $this->buildPrompt($this->messages);
 
+		// Resolve model/profile configuration
+		$profile = $this->selectedProfileId ? ModelProfile::find($this->selectedProfileId) : null;
+		if ($profile) {
+			// Rate limiting per profile
+			$this->enforceProfileLimits($profile);
+			$model = $profile->model_id ?: $model;
+			if ($profile->base_url) { $base = rtrim($profile->base_url,'/'); }
+			if ($profile->api_key) { $apiKey = $profile->api_key; }
+			// override streaming etc. (future enhancement)
+		}
+
 		try {
             $endpointBase = $base;
             $useOpenAi = (bool) ($this->settings['use_openai'] ?? config('hf-chat.use_openai', true));
@@ -369,8 +562,8 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 
 			$req = Http::withToken($apiKey)
 				->acceptJson()
-				->timeout((int) config('hf-chat.timeout', 60))
-				;
+				->timeout((int) config('hf-chat.timeout', 120))
+				->connectTimeout((int) config('hf-chat.connect_timeout', 30));
 
 			$payload = $useOpenAi
 				? [
@@ -394,12 +587,39 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 
 			$response = $req->post($urlPrimary, $payload);
 
+			// If OpenAI style request failed with 400 model_not_supported or not a chat model, auto-fallback to standard HF inference
+			if ($useOpenAi && $response->status() === 400) {
+				$err = (array) $response->json('error');
+				$msg = strtolower((string) ($err['message'] ?? ''));
+				$code = strtolower((string) ($err['code'] ?? ''));
+				if (str_contains($msg, 'not a chat model') || str_contains($code, 'model_not_supported')) {
+					$useOpenAi = false; // disable for downstream formatting
+					$response = Http::withToken($apiKey)
+						->acceptJson()
+						->timeout((int) config('hf-chat.timeout', 120))
+						->connectTimeout((int) config('hf-chat.connect_timeout', 30))
+						->post(rtrim($endpointBase, '/') . '/models/' . $model, [
+							'inputs' => $prompt,
+							'parameters' => [
+								'temperature' => 0.7,
+								'max_new_tokens' => 512,
+								'return_full_text' => false,
+							],
+							'options' => [
+								'wait_for_model' => true,
+								'use_cache' => false,
+							],
+						]);
+				}
+			}
+
 			// Fallbacks on 404:
 			// 1) If OpenAI path failed, try the standard Inference API models endpoint with non-OpenAI payload
 			if ($response->status() === 404 && $useOpenAi) {
 				$response = Http::withToken($apiKey)
 					->acceptJson()
-					->timeout((int) config('hf-chat.timeout', 60))
+					->timeout((int) config('hf-chat.timeout', 120))
+					->connectTimeout((int) config('hf-chat.connect_timeout', 30))
 					->post(rtrim($endpointBase, '/') . '/models/' . $model, [
 						'inputs' => $prompt,
 						'parameters' => [
@@ -418,7 +638,8 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 			if ($response->status() === 404 && ! $isDedicatedEndpoint) {
 				$response = Http::withToken($apiKey)
 					->acceptJson()
-					->timeout((int) config('hf-chat.timeout', 60))
+					->timeout((int) config('hf-chat.timeout', 120))
+					->connectTimeout((int) config('hf-chat.connect_timeout', 30))
 					->post(rtrim($endpointBase, '/') . '/pipeline/text-generation/' . $model, [
 						'inputs' => $prompt,
 						'parameters' => [
@@ -473,6 +694,34 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 		}
 	}
 
+	protected function enforceProfileLimits(ModelProfile $profile): void
+	{
+		$userId = (int) auth()->id();
+		if (! $userId) return;
+		$perMinute = $profile->per_minute_limit;
+		$perDay = $profile->per_day_limit;
+		if ($perMinute || $perDay) {
+			if ($perMinute) {
+				$usedMin = ModelProfileUsage::countForMinute($userId, (int)$profile->id);
+				if ($usedMin >= $perMinute) {
+					$this->messages[] = ['role'=>'assistant','content'=>'Rate limit reached for this minute ('.$perMinute.'). Try again shortly.'];
+					$this->dispatch('messageReceived');
+					throw new \RuntimeException('Minute limit');
+				}
+			}
+			if ($perDay) {
+				$usedDay = ModelProfileUsage::countForDay($userId, (int)$profile->id);
+				if ($usedDay >= $perDay) {
+					$this->messages[] = ['role'=>'assistant','content'=>'Daily rate limit reached ('.$perDay.'). Try again tomorrow.'];
+					$this->dispatch('messageReceived');
+					throw new \RuntimeException('Day limit');
+				}
+			}
+			// Increment usage (optimistically) now
+			ModelProfileUsage::incr($userId, (int)$profile->id);
+		}
+	}
+
 	public static function canAccess(): bool
 	{
 		$user = auth()->user();
@@ -504,17 +753,24 @@ class HfChatPage extends Page implements Tables\Contracts\HasTable, HasForms
 
 	protected function getHeaderActions(): array
 	{
+		$mode = $this->viewMode;
 		return [
 			Action::make('hf_conversations_btn')
 				->label('Conversations')
 				->icon('heroicon-o-table-cells')
-				->color('gray')
+				->color($mode === 'conversations' ? 'primary' : 'gray')
 				->action(fn () => $this->showConversations())
 				->extraAttributes(['id' => 'hf-conversations-btn', 'wire:key' => 'hf-conversations-btn', 'type' => 'button']),
+			Action::make('hf_model_profiles_btn')
+				->label('Profiles')
+				->icon('heroicon-o-cog-8-tooth')
+				->color($mode === 'profiles' ? 'primary' : 'gray')
+				->action(fn () => $this->showProfiles())
+				->extraAttributes(['id' => 'hf-model-profiles-btn', 'wire:key' => 'hf-model-profiles-btn', 'type' => 'button']),
 			Action::make('hf_settings_btn')
 				->label('Settings')
 				->icon('heroicon-o-cog-6-tooth')
-				->color('gray')
+				->color($mode === 'settings' ? 'primary' : 'gray')
 				->action(fn () => $this->showSettings())
 				->extraAttributes(['id' => 'hf-settings-btn', 'wire:key' => 'hf-settings-btn', 'type' => 'button']),
 			Action::make('hf_new_chat_btn')

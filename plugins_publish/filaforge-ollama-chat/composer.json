@@ -1,0 +1,25 @@
+{
+    "name": "filaforge/ollama-chat",
+    "description": "Filament v4 Ollama chat plugin (conversations, settings, models).",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "php": "^8.1",
+        "illuminate/support": "^12.0",
+        "filament/filament": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Filaforge\\OllamaChat\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Filaforge\\OllamaChat\\OllamaChatServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

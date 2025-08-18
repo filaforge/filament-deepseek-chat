@@ -7,7 +7,10 @@ return [
 	'stream' => env('HF_STREAM', false),
 	'allow_roles' => [],
 	'admin_roles' => [],
-	'timeout' => env('HF_TIMEOUT', 60),
+	// Total request timeout (seconds)
+	'timeout' => env('HF_TIMEOUT', 120),
+	// DNS/connect timeout (seconds) before giving up establishing the connection
+	'connect_timeout' => env('HF_CONNECT_TIMEOUT', 30),
 ];
 
 

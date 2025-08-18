@@ -14,18 +14,18 @@ class TerminalConsoleServiceProvider extends PackageServiceProvider
 
     public function configurePackage(Package $package): void
     {
-        $package
-            ->name(static::$name)
-            ->hasConfigFile('terminal')
-            ->hasMigrations([
-                'create_terminal_console_settings_table',
-            ])
-            ->hasViews()
-            ->hasAssets()
-            ->hasTranslations()
-            ->hasCommands([
-                TerminalCommand::class,
-            ]);
+        // Use non-chained calls to avoid any potential parse issues
+        $package->name(static::$name);
+        $package->hasConfigFile('terminal');
+        $package->hasMigrations([
+            'create_terminal_console_settings_table',
+        ]);
+        $package->hasViews();
+        $package->hasAssets();
+        $package->hasTranslations();
+        $package->hasCommands([
+            TerminalCommand::class,
+        ]);
     }
 
     public function packageRegistered(): void

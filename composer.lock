@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7a16b88f7aadfcaebaa0f1ff77dda800",
+    "content-hash": "4539dfb9d0fa43377185ba74148c8af2",
     "packages": [
         {
             "name": "akaunting/laravel-money",
@@ -1577,6 +1577,100 @@
                 "email": "filaforger@gmail.com",
                 "source": "https://github.com/filaforge/huggingface-chat"
             },
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "filaforge/ollama-chat",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "plugins_publish/filaforge-ollama-chat",
+                "reference": "9933488b00c9e91022096c3f267117eda83e227a"
+            },
+            "require": {
+                "filament/filament": "^4.0",
+                "illuminate/support": "^12.0",
+                "php": "^8.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Filaforge\\OllamaChat\\OllamaChatServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Filaforge\\OllamaChat\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Filament v4 Ollama chat plugin (conversations, settings, models).",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "filaforge/shell-terminal",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "plugins_publish/filaforge-shell-terminal",
+                "reference": "348e71408cacaac5994a9d79a2e8f94b9de6ad1d"
+            },
+            "require": {
+                "filament/filament": "^4.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.16"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^8.0|^9.0",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Filaforge\\ShellTerminal\\Providers\\FilaforgeShellTerminalServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Filaforge\\ShellTerminal\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Filaforge\\ShellTerminal\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Filaforge Team",
+                    "email": "filaforger@gmail.com"
+                }
+            ],
+            "description": "A powerful shell terminal plugin for FilamentPHP with local assets and enhanced security",
+            "keywords": [
+                "admin",
+                "console",
+                "filament",
+                "laravel",
+                "panel",
+                "shell",
+                "terminal"
+            ],
             "transport-options": {
                 "symlink": true,
                 "relative": true
