@@ -2,6 +2,14 @@
 
 All notable changes to `filaforge/deepseek-chat` will be documented in this file.
 
+## v0.8.3 - 2025-08-18
+- **IMPROVED**: Settings now display in main section instead of modal
+- **REMOVED**: Settings button from header (no longer needed)
+- **NEW**: Dynamic button replacement - Set API Key becomes Settings after key is saved
+- **IMPROVED**: Better user experience with inline settings management
+- **FIXED**: Settings button now properly toggles settings view in main section
+- **IMPROVED**: Cleaner interface with contextual button behavior
+
 ## v0.8.2 - 2025-08-18
 - **NEW**: Settings modal integrated directly in chat window
 - **FIXED**: Route error when clicking settings button

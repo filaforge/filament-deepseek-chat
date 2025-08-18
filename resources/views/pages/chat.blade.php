@@ -231,6 +231,96 @@
         <div x-show="showChatsTable" x-cloak class="p-4">
             {{ $this->table }}
         </div>
+
+        <!-- Settings Table (main section) -->
+        @if($this->showSettings)
+            <div class="p-4">
+                <div class="space-y-6">
+                    <!-- API Configuration Section -->
+                    <div class="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+                        <h3 class="text-lg font-medium mb-4 text-gray-900 dark:text-gray-100">API Configuration</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">API Key</label>
+                                <x-filament::input.wrapper>
+                                    <textarea
+                                        wire:model="settings.api_key"
+                                        rows="3"
+                                        placeholder="Enter your DeepSeek API key..."
+                                        class="fi-input block w-full resize-none border-none bg-transparent text-base text-gray-950 placeholder:text-gray-500 focus:ring-0 focus:outline-none dark:text-white dark:placeholder:text-gray-400 sm:text-sm"
+                                    ></textarea>
+                                </x-filament::input.wrapper>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Your DeepSeek API key. Keep this secure.</p>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Base URL</label>
+                                    <x-filament::input.wrapper>
+                                        <input
+                                            type="text"
+                                            wire:model="settings.base_url"
+                                            placeholder="https://api.deepseek.com"
+                                            class="fi-input block w-full border-none bg-transparent text-base text-gray-950 placeholder:text-gray-500 focus:ring-0 focus:outline-none dark:text-white dark:placeholder:text-gray-400 sm:text-sm"
+                                        />
+                                    </x-filament::input.wrapper>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">The base URL for DeepSeek API calls</p>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Timeout (seconds)</label>
+                                    <x-filament::input.wrapper>
+                                        <input
+                                            type="number"
+                                            wire:model="settings.timeout"
+                                            min="10"
+                                            max="300"
+                                            class="fi-input block w-full border-none bg-transparent text-base text-gray-950 placeholder:text-gray-500 focus:ring-0 focus:outline-none dark:text-white dark:placeholder:text-gray-400 sm:text-sm"
+                                        />
+                                    </x-filament::input.wrapper>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Request timeout in seconds</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        wire:model="settings.stream"
+                                        class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                    />
+                                    <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Enable Streaming</span>
+                                </label>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Enable streaming responses from the API</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Access Control Section -->
+                    <div class="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+                        <h3 class="text-lg font-medium mb-4 text-gray-900 dark:text-gray-100">Access Control</h3>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Allowed Roles</label>
+                            <x-filament::input.wrapper>
+                                <input
+                                    type="text"
+                                    wire:model="settings.allow_roles"
+                                    placeholder="admin,staff,user"
+                                    class="fi-input block w-full border-none bg-transparent text-base text-gray-950 placeholder:text-gray-500 focus:ring-0 focus:outline-none dark:text-white dark:placeholder:text-gray-400 sm:text-sm"
+                                />
+                            </x-filament::input.wrapper>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Comma-separated list of roles that can access DeepSeek Chat. Leave empty to allow all authenticated users.</p>
+                        </div>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="flex justify-end gap-2">
+                        <x-filament::button color="gray" wire:click="toggleSettings">Cancel</x-filament::button>
+                        <x-filament::button color="primary" wire:click="saveSettings">Save Settings</x-filament::button>
+                    </div>
+                </div>
+            </div>
+        @endif
         </div>
     </x-filament::section>
 
@@ -323,6 +413,16 @@
                         >
                             Set API Key
                         </x-filament::button>
+                    @else
+                        <x-filament::button
+                            color="gray"
+                            icon="heroicon-o-cog-6-tooth"
+                            class="mr-2"
+                            style="margin-right: 0.5rem;"
+                            wire:click="toggleSettings"
+                        >
+                            Settings
+                        </x-filament::button>
                     @endif
                 </div>
 
@@ -364,92 +464,5 @@
             <x-filament::button type="submit">Save Api Key</x-filament::button>
         </div>
     </form>
-    </x-filament::modal>
-
-    <!-- Settings Modal -->
-    <x-filament::modal id="deepseek-settings-modal" width="lg" heading="DeepSeek Chat Settings">
-        <div class="space-y-6">
-            <!-- API Configuration Section -->
-            <div class="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
-                <h3 class="text-lg font-medium mb-4 text-gray-900 dark:text-gray-100">API Configuration</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">API Key</label>
-                        <x-filament::input.wrapper>
-                            <textarea 
-                                wire:model="settings.api_key" 
-                                rows="3" 
-                                placeholder="Enter your DeepSeek API key..." 
-                                class="fi-input block w-full resize-none border-none bg-transparent text-base text-gray-950 placeholder:text-gray-500 focus:ring-0 focus:outline-none dark:text-white dark:placeholder:text-gray-400 sm:text-sm"
-                            ></textarea>
-                        </x-filament::input.wrapper>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Your DeepSeek API key. Keep this secure.</p>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Base URL</label>
-                            <x-filament::input.wrapper>
-                                <input 
-                                    type="text" 
-                                    wire:model="settings.base_url" 
-                                    placeholder="https://api.deepseek.com" 
-                                    class="fi-input block w-full border-none bg-transparent text-base text-gray-950 placeholder:text-gray-500 focus:ring-0 focus:outline-none dark:text-white dark:placeholder:text-gray-400 sm:text-sm"
-                                />
-                            </x-filament::input.wrapper>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">The base URL for DeepSeek API calls</p>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Timeout (seconds)</label>
-                            <x-filament::input.wrapper>
-                                <input 
-                                    type="number" 
-                                    wire:model="settings.timeout" 
-                                    min="10" 
-                                    max="300" 
-                                    class="fi-input block w-full border-none bg-transparent text-base text-gray-950 placeholder:text-gray-500 focus:ring-0 focus:outline-none dark:text-white dark:placeholder:text-gray-400 sm:text-sm"
-                                />
-                            </x-filament::input.wrapper>
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Request timeout in seconds</p>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="flex items-center">
-                            <input 
-                                type="checkbox" 
-                                wire:model="settings.stream" 
-                                class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                            />
-                            <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Enable Streaming</span>
-                        </label>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Enable streaming responses from the API</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Access Control Section -->
-            <div class="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
-                <h3 class="text-lg font-medium mb-4 text-gray-900 dark:text-gray-100">Access Control</h3>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Allowed Roles</label>
-                    <x-filament::input.wrapper>
-                        <input 
-                            type="text" 
-                            wire:model="settings.allow_roles" 
-                            placeholder="admin,staff,user" 
-                            class="fi-input block w-full border-none bg-transparent text-base text-gray-950 placeholder:text-gray-500 focus:ring-0 focus:outline-none dark:text-white dark:placeholder:text-gray-400 sm:text-sm"
-                        />
-                    </x-filament::input.wrapper>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Comma-separated list of roles that can access DeepSeek Chat. Leave empty to allow all authenticated users.</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="mt-6 flex justify-end gap-2">
-            <x-filament::button color="gray" type="button" x-on:click="$dispatch('close-modal', { id: 'deepseek-settings-modal' })">Cancel</x-filament::button>
-            <x-filament::button color="primary" wire:click="saveSettings">Save Settings</x-filament::button>
-        </div>
     </x-filament::modal>
 </x-filament-panels::page>

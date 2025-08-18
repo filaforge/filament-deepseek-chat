@@ -35,6 +35,7 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
     public array $allConversationList = [];
     public bool $canViewAllChats = false;
     public array $settings = [];
+    public bool $showSettings = false;
 
     public function mount(): void
     {
@@ -316,7 +317,7 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
         if (!$user) return;
 
         $data = $this->settings;
-        
+
         // Parse allow_roles from comma-separated string to array
         if (isset($data['allow_roles'])) {
             $data['allow_roles'] = empty(trim($data['allow_roles'])) ? [] : array_map('trim', explode(',', $data['allow_roles']));
@@ -332,8 +333,16 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
             ->success()
             ->send();
 
-        // Close the modal
-        $this->dispatch('close-modal', ['id' => 'deepseek-settings-modal']);
+        // Close the settings view
+        $this->showSettings = false;
+    }
+
+    public function toggleSettings(): void
+    {
+        $this->showSettings = !$this->showSettings;
+        if ($this->showSettings) {
+            $this->loadSettings();
+        }
     }
 
     public function hasApiKey(): bool
@@ -449,14 +458,6 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
     protected function getHeaderActions(): array
     {
         return [
-            // Settings button in header - opens modal instead of separate page
-            \Filament\Actions\Action::make('settings')
-                ->label('Settings')
-                ->icon('heroicon-o-cog-6-tooth')
-                ->color('gray')
-                ->action(function () {
-                    $this->dispatch('open-modal', ['id' => 'deepseek-settings-modal']);
-                }),
             // Keep registered but hidden; UI buttons live in the page body
             SetApiKey::make()->hidden()
         ];
