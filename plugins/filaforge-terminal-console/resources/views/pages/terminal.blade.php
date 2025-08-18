@@ -14,10 +14,10 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
-        .fi-terminal-container { border: 1px solid rgba(48,54,61,.8); border-radius: 12px; overflow: hidden; min-height: 60vh; }
+    .fi-terminal-container { border-radius: 12px; overflow: hidden; min-height: 60vh; }
         .xterm { font-family: 'JetBrains Mono','Fira Code',monospace !important; font-size: 14px !important; line-height: 1.4 !important; padding: 16px !important; }
-        .xterm .xterm-viewport { background: transparent !important; }
-        .xterm .xterm-screen   { background: transparent !important; }
+    .xterm .xterm-viewport { background: var(--terminal-bg) !important; }
+    .xterm .xterm-screen   { background: var(--terminal-bg) !important; }
     /* Preset buttons spacing without relying on Tailwind utilities */
     .fi-preset-btn { margin-right: 10px; }
     </style>
@@ -36,32 +36,54 @@
     </x-filament::section>
 
     @if(!empty($presets))
-    <div x-data="{ active: 'all' }">
+    <div x-data="{ active: 'all', view: 'categories' }">
         <x-filament::section>
-            <x-slot name="heading">
-                @php($__iconMap = [
-                    'laravel' => 'heroicon-o-rocket-launch',
-                    'git' => 'heroicon-o-command-line',
-                    'system' => 'heroicon-o-cpu-chip',
-                    'files' => 'heroicon-o-folder',
-                    'file' => 'heroicon-o-folder',
-                    'folders' => 'heroicon-o-folder',
-                    'composer' => 'heroicon-o-cube',
-                    'node' => 'heroicon-o-bolt',
-                    'artisan' => 'heroicon-o-sparkles',
-                    'database' => 'heroicon-o-circle-stack',
-                    'data' => 'heroicon-o-circle-stack',
-                ])
-                @php($__keys = array_keys($presets))
-                @php($__keySlugs = array_map(fn($k) => \Illuminate\Support\Str::slug($k), $__keys))
-        <div class="flex flex-wrap items-center gap-2 px-2 md:px-4">
+            @php($__iconMap = [
+                // Category-specific icons
+                'optimize' => 'heroicon-o-bolt',
+                'filament' => 'heroicon-o-sparkles',
+                'status' => 'heroicon-o-cpu-chip',
+                'files' => 'heroicon-o-folder',
+                'github' => 'heroicon-o-code-bracket',
+                'php shell' => 'heroicon-o-command-line',
+                'nodejs' => 'heroicon-o-globe-alt',
+                'docker' => 'heroicon-o-cube',
+                'database' => 'heroicon-o-circle-stack',
+                // Legacy mappings
+                'laravel' => 'heroicon-o-rocket-launch',
+                'git' => 'heroicon-o-code-bracket',
+                'system' => 'heroicon-o-cpu-chip',
+                'file' => 'heroicon-o-folder',
+                'folders' => 'heroicon-o-folder',
+                'net' => 'heroicon-o-globe-alt',
+                'composer' => 'heroicon-o-cube',
+                'node' => 'heroicon-o-globe-alt',
+                'artisan' => 'heroicon-o-sparkles',
+                'data' => 'heroicon-o-circle-stack',
+                'php' => 'heroicon-o-command-line',
+                'db' => 'heroicon-o-circle-stack',
+            ])
+            @php($__keys = array_keys($presets))
+            @php($__keySlugs = array_map(fn($k) => \Illuminate\Support\Str::slug($k), $__keys))
+
+            <div class="px-2 md:px-4">
+                <!-- Categories view -->
+                <div class="flex flex-wrap items-center gap-2 mt-2 fi-preset-rows" x-show="view === 'categories'" x-cloak>
+                    <!-- Refresh (clear terminal) -->
                     <button type="button"
-                        class="fi-btn fi-preset-btn relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-gray fi-btn-color-gray fi-size-sm fi-btn-size-sm gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm bg-white text-gray-950 hover:bg-gray-50 focus-visible:ring-gray-500/50 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 dark:focus-visible:ring-gray-400/50 ring-1 ring-gray-950/10 dark:ring-white/20"
-                        @click="active = (active === 'all' ? 'none' : 'all')"
-                        :class="active === 'all' ? 'bg-danger-600 text-white hover:bg-danger-700 dark:hover:bg-danger-500' : ''"
+                        class="fi-btn fi-preset-btn fi-preset-cat fi-terminal-action-btn shadow-sm text-white bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 ring-1 ring-gray-600 dark:ring-gray-700"
+                        @click="window.FilaTerminal && window.FilaTerminal.refresh && window.FilaTerminal.refresh()"
+                        title="Clear terminal"
                     >
-                        <x-filament::icon x-show="active !== 'all'" icon="heroicon-o-squares-2x2" class="h-4 w-4" aria-hidden="true" />
-                        <x-filament::icon x-show="active === 'all'" icon="heroicon-o-x-mark" class="h-4 w-4" aria-hidden="true" />
+                        <x-filament::icon icon="heroicon-o-arrow-path" class="h-4 w-4" aria-hidden="true" />
+                    </button>
+                    <!-- Toggle to Commands (placed in same row) -->
+                    <button type="button"
+                        class="fi-btn fi-preset-btn fi-preset-cat fi-terminal-action-btn shadow-sm text-white bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 ring-1 ring-gray-600 dark:ring-gray-700"
+                        @click="view = 'commands'"
+                        title="Show commands"
+                    >
+                        <x-filament::icon icon="heroicon-o-squares-2x2" class="h-4 w-4" aria-hidden="true" />
                     </button>
                     @foreach(array_keys($presets) as $__grp)
                         @php($__slug = \Illuminate\Support\Str::slug($__grp))
@@ -75,60 +97,57 @@
                             @endif
                         @endforeach
                         <button type="button"
-                            class="fi-btn fi-preset-btn relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-gray fi-btn-color-gray fi-size-sm fi-btn-size-sm gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm bg-white text-gray-950 hover:bg-gray-50 focus-visible:ring-gray-500/50 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 dark:focus-visible:ring-gray-400/50 ring-1 ring-gray-950/10 dark:ring-white/20"
-                            @click="active = '{{ $__slug }}'"
+                            class="fi-btn fi-preset-btn fi-preset-cat fi-terminal-cat-btn shadow-sm text-white bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 ring-1 ring-gray-600 dark:ring-gray-700"
+                            @click="active = '{{ $__slug }}'; view = 'commands'"
                             :class="active === '{{ $__slug }}' ? 'bg-primary-600 text-white hover:bg-primary-700 dark:hover:bg-primary-500' : ''"
                         >
                             <x-filament::icon :icon="$__icon" class="h-4 w-4" aria-hidden="true" />
                             <span>{{ $__display }}</span>
                         </button>
                     @endforeach
-                    @php($__extras = [
-                        'Composer' => 'composer',
-                        'Folders' => 'folders',
-                        'Node NPM' => 'node',
-                        'Docker' => 'docker',
-                        'Database' => 'database',
-                    ])
-                    @foreach($__extras as $__label => $__key)
-                        @if(!in_array($__key, $__keySlugs))
-                            @php($__slug = \Illuminate\Support\Str::slug($__label))
-                            @php($__icon = $__iconMap[$__key] ?? 'heroicon-o-cog-6-tooth')
-                            <button type="button"
-                                class="fi-btn fi-preset-btn relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-gray fi-btn-color-gray fi-size-sm fi-btn-size-sm gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm bg-white text-gray-950 hover:bg-gray-50 focus-visible:ring-gray-500/50 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 dark:focus-visible:ring-gray-400/50 ring-1 ring-gray-950/10 dark:ring-white/20"
-                                @click="active = '{{ $__key }}'"
-                                :class="active === '{{ $__key }}' ? 'bg-primary-600 text-white hover:bg-primary-700 dark:hover:bg-primary-500' : ''"
+                </div>
+
+                <!-- Commands view -->
+                <div class="mt-3 flex flex-wrap gap-2 items-center fi-preset-rows" x-show="view === 'commands'" x-cloak>
+                    <!-- Refresh (clear terminal) -->
+                    <button type="button"
+                        class="fi-btn fi-preset-btn fi-preset-cat fi-terminal-action-btn shadow-sm text-white bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 ring-1 ring-gray-600 dark:ring-gray-700"
+                        @click="window.FilaTerminal && window.FilaTerminal.refresh && window.FilaTerminal.refresh()"
+                        title="Clear terminal"
+                    >
+                        <x-filament::icon icon="heroicon-o-arrow-path" class="h-4 w-4" aria-hidden="true" />
+                    </button>
+                    <!-- Toggle back to Categories (same row as commands) -->
+                    <button type="button"
+                        class="fi-btn fi-preset-btn fi-preset-cat fi-terminal-action-btn shadow-sm text-white bg-gray-700 hover:bg-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700 ring-1 ring-gray-600 dark:ring-gray-700"
+                        @click="view = 'categories'"
+                        title="Show categories"
+                    >
+                        <x-filament::icon icon="heroicon-o-list-bullet" class="h-4 w-4" aria-hidden="true" />
+                    </button>
+                    @foreach($presets as $group => $items)
+                        @php($groupSlug = \Illuminate\Support\Str::slug($group))
+                        @foreach($items as $item)
+                            @php($cmd = (string)($item['command'] ?? ''))
+                            <button
+                                type="button"
+                                title="{{ $item['command'] ?? '' }}"
+                                class="fi-btn fi-preset-btn fi-preset-cmd fi-terminal-cmd-btn action-console shadow-sm text-white bg-gray-800 hover:bg-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800 ring-1 ring-gray-700 dark:ring-gray-800"
+                                data-group="{{ $groupSlug }}"
+                                data-command="{{ $cmd }}"
+                                x-show="active !== 'none' && (
+                                    active === 'all' ||
+                                    active === $el.dataset.group ||
+                                    ($el.dataset.group === 'system' && ['files','file','folders'].includes(active)) ||
+                                    ($el.dataset.group === 'files' && active === 'net')
+                                )"
+                                onclick="if(window.FilaTerminal && window.FilaTerminal.insertCommand){window.FilaTerminal.insertCommand(this.dataset.command)}"
                             >
-                                <x-filament::icon :icon="$__icon" class="h-4 w-4" aria-hidden="true" />
-                                <span>{{ $__label }}</span>
+                                <span class="fi-btn-label">{{ \Illuminate\Support\Str::lower($item['label'] ?? ($item['command'] ?? 'command')) }}</span>
                             </button>
-                        @endif
+                        @endforeach
                     @endforeach
                 </div>
-            </x-slot>
-
-            <div class="space-y-4">
-                @foreach($presets as $group => $items)
-                    @php($groupSlug = \Illuminate\Support\Str::slug($group))
-                        <div x-show="active !== 'none' && (active === 'all' || active === '{{ $groupSlug }}' || active === '{{ $group }}' @if($groupSlug==='system') || active === 'files' || active === 'file' || active === 'folders' @endif )" x-cloak
-                         class="fi-section rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900">
-                        <div class="fi-section-content p-4">
-                            <div class="flex flex-wrap gap-2">
-                                @foreach($items as $item)
-                                    <button
-                                        type="button"
-                                        title="{{ $item['description'] ?? ($item['command'] ?? '') }}"
-                                        class="fi-btn fi-preset-btn relative grid-flow-col items-center justify-center font-semibold outline-none transition duration-75 focus-visible:ring-2 rounded-lg fi-color-gray fi-btn-color-gray fi-size-sm fi-btn-size-sm gap-1.5 px-3 py-2 text-sm inline-grid shadow-sm bg-white text-gray-950 hover:bg-gray-50 focus-visible:ring-gray-500/50 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 dark:focus-visible:ring-gray-400/50 ring-1 ring-gray-950/10 dark:ring-white/20"
-                                        data-command="{{ $item['command'] ?? '' }}"
-                                        onclick="if(window.FilaTerminal && window.FilaTerminal.insertCommand){window.FilaTerminal.insertCommand(this.dataset.command)}"
-                                    >
-                                        <span class="fi-btn-label">{{ $item['label'] ?? 'Command' }}</span>
-                                    </button>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
             </div>
         </x-filament::section>
     </div>
@@ -136,14 +155,17 @@
 
     <script>
     window.FilaTerminal = window.FilaTerminal || (function () {
-        let listenersAttached = false;
-        let current = null; // { terminal, termEl, fitAddon, state }
+    let listenersAttached = false;
+    let current = null; // { terminal, termEl, fitAddon, state }
+    let isRefreshing = false;
+    let lastPromptAt = 0;
 
         function attachGlobalListeners() {
             if (listenersAttached) return; listenersAttached = true;
             const attach = () => {
                 if (!window.Livewire) return;
                 window.Livewire.on('terminal.output', (payload) => {
+                    console.log('Livewire terminal.output event:', payload);
                     if (!current) return; const { terminal, state } = current; const { command, output, path } = payload || {};
                     if (command) terminal.writeln(`$ ${command}`);
                     if (typeof output === 'string' && output.length) {
@@ -169,7 +191,7 @@
             if (!Terminal) { setTimeout(() => init(termEl, livewireComponent), 50); return; }
 
             const terminal = new Terminal({
-                theme: { background: 'transparent', foreground: '#f8f8f2', cursor: '#58a6ff', cursorAccent: '#58a6ff' },
+                theme: { background: '#ffffff', foreground: '#1e293b', cursor: '#1e293b', cursorAccent: '#1e293b' },
                 fontFamily: '\"JetBrains Mono\", \"Fira Code\", monospace', fontSize: 14, lineHeight: 1.4, cursorBlink: true, cursorStyle: 'block', scrollback: 1000, tabStopWidth: 4
             });
             const fitAddon = FitAddon ? new FitAddon() : null; const webLinksAddon = WebLinksAddon ? new WebLinksAddon() : null;
@@ -179,14 +201,34 @@
             let state = {
                 currentCommand: '', commandHistory: [], historyIndex: -1,
                 currentPath: '{{ $this->getCurrentPath() }}',
-                showPrompt: () => { terminal.write(`\x1b[34mfilaforge@terminal\x1b[0m:\x1b[36m${state.currentPath}\x1b[0m$ `); },
+                showPrompt: () => {
+                    const now = Date.now();
+                    if (now - lastPromptAt < 50) return;
+                    lastPromptAt = now;
+                    // Fixed prompt exactly as requested
+                    terminal.write(`\x1b[34madmin@filament\x1b[0m:\x1b[36m~\x1b[0m$ `);
+                },
                 clearCurrentLine: () => { terminal.write('\x1b[2K\x1b[0G'); },
                 refreshPrompt: () => { state.clearCurrentLine(); state.showPrompt(); terminal.write(state.currentCommand); },
             };
 
+            function applyTheme(){
+                try {
+                    const root = document.querySelector('.ff-terminal-console');
+                    if(!root) return;
+                    const styles = getComputedStyle(root);
+                    const isDark = document.documentElement.classList.contains('dark') || document.documentElement.dataset.theme === 'dark';
+                    const bg = (styles.getPropertyValue('--terminal-bg')||'').trim() || (isDark ? '#0a0a0c' : '#ffffff');
+                    const fg = (styles.getPropertyValue('--terminal-fg')||'').trim() || (isDark ? '#ffffff' : '#1e293b');
+                    const cursor = (styles.getPropertyValue('--terminal-cursor')||'').trim() || fg;
+                    terminal.options.theme = { background: bg, foreground: fg, cursor, cursorAccent: cursor };
+                    if (current && current.termEl) { current.termEl.style.background = bg; }
+                } catch(e) { /* no-op */ }
+            }
+
             const writeWelcome = () => {
                 terminal.writeln('\x1b[36mWelcome to Filament Terminal\x1b[0m');
-                terminal.writeln('Type commands here. Tab = completion, ↑/↓ = history, Ctrl+L = clear, Ctrl+C = cancel');
+                terminal.writeln('Tab = completion, ↑/↓ = history, Ctrl+L = clear, Ctrl+C = cancel');
                 terminal.writeln(''); state.showPrompt();
             };
             const needsWelcomeMessage = () => { try { if (!terminal || !terminal.buffer || !terminal.buffer.active) return true; const lineCount = terminal.buffer.active.length; if (lineCount === 0) return true; for (let i=0; i<Math.min(lineCount,5); i++){ const line = terminal.buffer.active.getLine(i); if (line && line.translateToString().trim()) return false; } return true; } catch(e){ return true; } };
@@ -220,14 +262,40 @@
             const refit = () => { if (fitAddon) { try { fitAddon.fit(); } catch (e) {} } }; if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);
             termEl.addEventListener('click', () => terminal.focus());
             current = { terminal, termEl, fitAddon, state };
+            applyTheme();
+            // Watch for dark mode toggles (Filament toggles .dark on <html>)
+            try {
+                const obs = new MutationObserver(() => { applyTheme(); });
+                obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+                // Also listen to prefers-color-scheme changes as fallback
+                const mq = window.matchMedia('(prefers-color-scheme: dark)');
+                if (mq && mq.addEventListener) { mq.addEventListener('change', applyTheme); }
+                setTimeout(applyTheme, 50);
+                setTimeout(applyTheme, 250);
+            } catch(e) {}
             setTimeout(() => { if (needsWelcomeMessage()) writeWelcome(); }, 100);
         }
 
         attachGlobalListeners();
 
-        function insertCommand(command){ try { if (!current||!current.terminal||!current.state) return; current.state.currentCommand = String(command ?? ''); current.state.refreshPrompt(); current.terminal.focus(); } catch(e){} }
-        async function runCommand(command){ try { if (!current||!current.terminal||!current.state) return; const cmd = String(command ?? '').trim(); if(!cmd) return; current.state.currentCommand = cmd; current.state.refreshPrompt(); const lv = @this; await lv.call('$set','data.command',cmd); await lv.call('run'); } catch(e){} }
-        return { init, insertCommand, runCommand };
+        function refresh(){
+            try {
+                if (!current||!current.terminal||!current.state) return;
+                if (isRefreshing) return; isRefreshing = true;
+                const { terminal, state } = current;
+                state.currentCommand = '';
+                // Clear screen and scrollback, move cursor to home, and clear current line
+                terminal.write('\x1b[2J\x1b[3J\x1b[H');
+                terminal.write('\x1b[2K\r');
+                state.showPrompt();
+                terminal.focus();
+                setTimeout(() => { isRefreshing = false; }, 50);
+            } catch(e) { isRefreshing = false; }
+        }
+    async function clearAndRun(command){ try { if (!current||!current.terminal||!current.state) return; await runCommand('clear'); await runCommand(command); } catch(e){} }
+    function insertCommand(command){ try { if (!current||!current.terminal||!current.state) return; current.state.currentCommand = String(command ?? ''); current.state.refreshPrompt(); current.terminal.focus(); } catch(e){} }
+    async function runCommand(command){ try { if (!current||!current.terminal||!current.state) return; const cmd = String(command ?? '').trim(); if(!cmd) return; current.state.currentCommand = cmd; current.state.refreshPrompt(); const lv = @this; await lv.call('$set','data.command',cmd); await lv.call('run'); } catch(e){} }
+    return { init, insertCommand, runCommand, refresh, clearAndRun };
     })();
     </script>
 </x-filament::page>

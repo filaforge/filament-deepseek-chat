@@ -12,8 +12,13 @@ class TerminalSetting extends Model
 
     public static function get(string $key, $default = null): ?string
     {
-        $row = static::query()->where('key', $key)->first();
-        return $row?->value ?? $default;
+        try {
+            $row = static::query()->where('key', $key)->first();
+            return $row?->value ?? $default;
+        } catch (\Throwable $e) {
+            // If the table doesn't exist yet or DB error occurs, gracefully return default
+            return $default;
+        }
     }
 
     public static function set(string $key, ?string $value): void

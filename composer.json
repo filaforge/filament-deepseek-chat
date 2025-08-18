@@ -25,13 +25,15 @@
     "filaforge/api-explorer": "*",
     "filaforge/database-query": "*",
     "filaforge/database-viewer": "*",
-    "filaforge/deepseek-chat": "*",
+        "filaforge/deepseek-chat": "*",
+        "filaforge/huggingface-chat": "*",
     "filaforge/hello-widget": "*",
     "filaforge/system-monitor": "*",
     "filaforge/system-widget": "*",
     "filaforge/system-packages": "*",
     "filaforge/system-tools": "*",
-    "filaforge/terminal-console": "*",
+        "filaforge/terminal-console": "*",
+        "filaforge/wirechat": "*",
     "filaforge/user-manager": "*",
     "awcodes/filament-quick-create": "*"
     },
@@ -52,7 +54,7 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+        "Database\\Seeders\\": "database/seeders/"
         }
     },
     "autoload-dev": {

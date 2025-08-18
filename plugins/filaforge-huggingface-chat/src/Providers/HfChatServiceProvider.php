@@ -3,6 +3,7 @@
 namespace Filaforge\HuggingfaceChat\Providers;
 
 use Filament\Support\Assets\Css;
+use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
@@ -31,8 +32,10 @@ class HfChatServiceProvider extends PackageServiceProvider
 	{
 		FilamentAsset::register([
 			Css::make('hf-chat', __DIR__ . '/../../resources/css/hf-chat.css'),
+			Js::make('hf-chat', __DIR__ . '/../../resources/js/hf-chat.js'),
 		], package: 'filaforge/huggingface-chat');
 	}
 }
+
 
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ab4ae7f3c81653fa8cfe25e9ed9a6897",
+    "content-hash": "7a16b88f7aadfcaebaa0f1ff77dda800",
     "packages": [
         {
             "name": "akaunting/laravel-money",
@@ -1530,6 +1530,59 @@
             }
         },
         {
+            "name": "filaforge/huggingface-chat",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "plugins/filaforge-huggingface-chat",
+                "reference": "ecd625dd4975ad775c73bf62c2e00d7599237879"
+            },
+            "require": {
+                "filament/filament": "^4.0",
+                "guzzlehttp/guzzle": "^7.8",
+                "illuminate/support": "^12.0",
+                "php": "^8.1",
+                "spatie/laravel-package-tools": "^1.16"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Filaforge\\HuggingfaceChat\\Providers\\HfChatServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Filaforge\\HuggingfaceChat\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Filaforge"
+                }
+            ],
+            "description": "Filament panel plugin providing a Hugging Face chat page with admin-manageable API token and conversations.",
+            "homepage": "https://github.com/filaforge/huggingface-chat",
+            "keywords": [
+                "Filament",
+                "HuggingFace",
+                "Laravel",
+                "Platform"
+            ],
+            "support": {
+                "email": "filaforger@gmail.com",
+                "source": "https://github.com/filaforge/huggingface-chat"
+            },
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "filaforge/system-monitor",
             "version": "dev-main",
             "dist": {
@@ -1889,6 +1942,57 @@
                 "email": "filaforger@gmail.com",
                 "source": "https://github.com/filaforge/user-manager"
             },
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "filaforge/wirechat",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "plugins/filaforge-wirechat",
+                "reference": "13d0e2ed755e24eb4854cdf2c38987bcb3632172"
+            },
+            "require": {
+                "filament/filament": "^4.0",
+                "illuminate/support": "^12.0",
+                "php": ">=8.1",
+                "spatie/laravel-package-tools": "^1.15"
+            },
+            "suggest": {
+                "namumakwembo/wirechat": "^1.0 — Optional. Install to render the chat UI inside the Filament page."
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Filaforge\\Wirechat\\Providers\\WirechatServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Filaforge\\Wirechat\\": "src/",
+                    "Namu\\WireChat\\": "upstream/src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Filaforge"
+                }
+            ],
+            "description": "Filaforge Wirechat integration for Filament v4",
+            "keywords": [
+                "Filament",
+                "Laravel",
+                "Plugin",
+                "Wirechat"
+            ],
             "transport-options": {
                 "symlink": true,
                 "relative": true

@@ -3,8 +3,6 @@
 namespace Filaforge\HuggingfaceChat\Providers;
 
 use Filaforge\HuggingfaceChat\Pages\HfChatPage;
-use Filaforge\HuggingfaceChat\Pages\HfSettingsPage;
-use Filaforge\HuggingfaceChat\Pages\HfConversationsPage;
 use Filament\Contracts\Plugin as PluginContract;
 use Filament\Panel;
 
@@ -24,8 +22,6 @@ class HfChatPanelPlugin implements PluginContract
 	{
 		$panel->pages([
 			HfChatPage::class,
-			HfSettingsPage::class,
-			HfConversationsPage::class,
 		]);
 	}
 

@@ -1,0 +1,14 @@
+.ff-wirechat .wc-container { border-radius: 12px; border: 1px solid rgba(0,0,0,.08); background: #fff; }
+.dark .ff-wirechat .wc-container { background: #0b0b0c; border-color: #1f2937; }
+.ff-wirechat .wc-header { display:flex; align-items:center; justify-content:space-between; padding:.75rem 1rem; border-bottom:1px solid rgba(0,0,0,.06); }
+.dark .ff-wirechat .wc-header { border-color:#1f2937; }
+.ff-wirechat .wc-list { padding: .75rem 1rem; }
+.ff-wirechat .wc-message { line-height: 1.5; }
+.ff-wirechat .wc-empty { text-align:center; color:#6b7280; padding: 2rem 1rem; }
+.ff-wirechat .wc-search-icon, .ff-wirechat .wc-home-icon { width: 18px; height: 18px; display:inline-block; color:#6b7280; }
+.dark .ff-wirechat .wc-search-icon, .dark .ff-wirechat .wc-home-icon { color:#9ca3af; }
+/* Hard cap all SVG icon sizes within the Wirechat container to avoid missing Tailwind utils */
+.ff-wirechat svg { max-width: 20px; max-height: 20px; }
+.ff-wirechat .fi-btn svg { width: 18px; height: 18px; }
+
+

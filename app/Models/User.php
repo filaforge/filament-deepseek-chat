@@ -22,6 +22,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants, MustVeri
     use HasFactory;
 
     use Notifiable;
+    use \Namu\WireChat\Traits\Chatable;
 
     /**
      * @var list<string>
