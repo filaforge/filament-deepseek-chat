@@ -18,6 +18,9 @@ This plugin is built for the Filaforge Platform, but it works in any Filament v4
 - Per-user API key management via a settings page
 - Conversation history stored in your database
 - Simple install, ships with config, views, and migrations
+- **Fully automatic installation** - no manual commands required
+- **Automatic asset publishing** - config, views, and migrations published automatically
+- **Automatic optimization** - runs `php artisan optimize` after installation
 
 ---
 
@@ -36,18 +39,14 @@ This plugin is built for the Filaforge Platform, but it works in any Filament v4
 composer require filaforge/deepseek-chat
 ```
 
-### Step 2: Publish assets (config, views, lang)
-```bash
-php artisan vendor:publish --provider="Filaforge\DeepseekChat\Providers\DeepseekChatServiceProvider"
-```
+**That's it!** The package will automatically:
+- Publish configuration files to `config/deepseek-chat.php`
+- Publish view files to `resources/views/vendor/deepseek-chat/`
+- Publish migration files to `database/migrations/`
+- Run database migrations to create required tables
+- Execute `php artisan optimize` to cache routes and config
 
-### Step 3: Run migrations
-```bash
-php artisan migrate
-```
-This creates the deepseek_conversations table and adds a deepseek_api_key column to users if it doesn’t exist.
-
-### Step 4: Register the plugin in your Filament panel (important)
+### Step 2: Register the plugin in your Filament panel (important)
 Add the panel plugin to your panel provider so the pages show in the sidebar.
 
 - File in this app: `app/Providers/Filament/AdminPanelProvider.php`
@@ -70,15 +69,13 @@ Note: If your app has multiple panels, add the plugin to whichever panel should 
 
 ---
 
-## Usage
-- Open “DeepSeek Chat” from your Filament navigation.
-- Go to “DeepSeek Settings” to set your personal API key (stored on the user). If you prefer, you can set a default in `.env` (see below) and users can override it.
-- Start chatting. Conversations are saved to the `deepseek_conversations` table.
+### Step 3: Start using the plugin!
+The plugin is now fully installed and ready to use. No additional setup required.
 
 ---
 
 ## Configuration
-The package publishes `config/deepseek-chat.php` with these options:
+The package automatically publishes `config/deepseek-chat.php` with these options:
 
 ```php
 return [
@@ -109,10 +106,48 @@ return [
 
 ---
 
+## Usage
+- Open "DeepSeek Chat" from your Filament navigation.
+- Go to "DeepSeek Settings" to set your personal API key (stored on the user). If you prefer, you can set a default in `.env` (see below) and users can override it.
+- Start chatting. Conversations are saved to the `deepseek_conversations` table.
+
+---
+
+## Development & Testing
+
+### Running Tests
+```bash
+composer test
+```
+
+### Running Tests with Coverage
+```bash
+composer test-coverage
+```
+
+### Installation Test
+```bash
+php install-test.php
+```
+
+---
+
+## Updates
+
+```bash
+composer update filaforge/deepseek-chat
+```
+
+**Note:** All assets, migrations, and optimization are automatically handled during package installation and updates.
+
+---
+
 ## Troubleshooting
-- After publishing, if views or config don’t appear, clear caches: `php artisan config:clear && php artisan view:clear && php artisan route:clear`.
-- Make sure you added the panel plugin in Step 4; otherwise pages won’t be registered.
-- Don’t forget to run `php artisan migrate`.
+- **Migrations are automatic** - no need to run `php artisan migrate` manually
+- **Assets are auto-published** - no need to run `php artisan vendor:publish` manually
+- **Optimization is automatic** - no need to run `php artisan optimize` manually
+- If you encounter any issues, the plugin logs all operations to Laravel's log files
+- Make sure you added the panel plugin in Step 2; otherwise pages won't be registered
 
 ---
 
