@@ -34,6 +34,7 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
     /** @var array<int, array{id:int,title:?string,updated_at:string,user_id:int,user_name:string}> */
     public array $allConversationList = [];
     public bool $canViewAllChats = false;
+    public array $settings = [];
 
     public function mount(): void
     {
@@ -44,6 +45,7 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
         if ($this->canViewAllChats) {
             $this->loadAllConversations();
         }
+        $this->loadSettings();
     }
 
     public function table(Table $table): Table
@@ -293,6 +295,47 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
         $this->dispatch('open-modal', ['id' => 'set-api-key-modal']);
     }
 
+    protected function loadSettings(): void
+    {
+        $userId = (int) auth()->id();
+        if (!$userId) return;
+
+        $setting = DeepseekSetting::forUser($userId);
+        $this->settings = [
+            'api_key' => $setting->api_key,
+            'base_url' => $setting->base_url,
+            'stream' => $setting->stream,
+            'timeout' => $setting->timeout,
+            'allow_roles' => is_array($setting->allow_roles) ? implode(', ', $setting->allow_roles) : '',
+        ];
+    }
+
+    public function saveSettings(): void
+    {
+        $user = auth()->user();
+        if (!$user) return;
+
+        $data = $this->settings;
+        
+        // Parse allow_roles from comma-separated string to array
+        if (isset($data['allow_roles'])) {
+            $data['allow_roles'] = empty(trim($data['allow_roles'])) ? [] : array_map('trim', explode(',', $data['allow_roles']));
+        }
+
+        // Get or create settings for the user
+        $settings = DeepseekSetting::forUser($user->id);
+        $settings->update($data);
+
+        // Show success notification
+        \Filament\Notifications\Notification::make()
+            ->title('Settings saved successfully')
+            ->success()
+            ->send();
+
+        // Close the modal
+        $this->dispatch('close-modal', ['id' => 'deepseek-settings-modal']);
+    }
+
     public function hasApiKey(): bool
     {
         $userId = (int) auth()->id();
@@ -406,12 +449,14 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
     protected function getHeaderActions(): array
     {
         return [
-            // Settings button in header
+            // Settings button in header - opens modal instead of separate page
             \Filament\Actions\Action::make('settings')
                 ->label('Settings')
                 ->icon('heroicon-o-cog-6-tooth')
                 ->color('gray')
-                ->url(route('filament.admin.pages.deepseek-settings')),
+                ->action(function () {
+                    $this->dispatch('open-modal', ['id' => 'deepseek-settings-modal']);
+                }),
             // Keep registered but hidden; UI buttons live in the page body
             SetApiKey::make()->hidden()
         ];
