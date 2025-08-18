@@ -22,6 +22,18 @@
     .fi-preset-btn { margin-right: 10px; }
     </style>
 
+    <!-- Echo stub to silence "Laravel Echo cannot be found" if broadcasting not configured -->
+    <script>
+    if (typeof window !== 'undefined' && typeof window.Echo === 'undefined') {
+        window.Echo = {
+            channel() { return this; }, private() { return this; }, encrypted() { return this; },
+            listen() { return this; }, listenForWhisper() { return this; }, whisper() { return this; },
+            notification() { return this; }, join() { return this; }, leave() { return this; }, leaveChannel() { return this; },
+            connector: { pusher: null }
+        };
+    }
+    </script>
+
     @php($presets = config('terminal.presets', []))
 
     <x-filament::section>
