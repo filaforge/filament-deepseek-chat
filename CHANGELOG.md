@@ -2,6 +2,16 @@
 
 All notable changes to `filaforge/deepseek-chat` will be documented in this file.
 
+## v0.8.0 - 2025-08-18
+- **STABLE RELEASE**: Clean, working version with all fixes applied
+- **FIXED**: All version mismatches in git tags resolved
+- **FIXED**: Migration conflicts completely resolved
+- **FIXED**: Installation process simplified and made safe
+- **IMPROVED**: Database schema cleaned up and optimized
+- **IMPROVED**: All conflicting migration files removed
+- **IMPROVED**: Production-ready installation process
+- **BREAKING CHANGE**: Now uses separate `deepseek_settings` table instead of user columns
+
 ## v0.7.0 - 2025-08-18
 - **BREAKING CHANGE**: Simplified installation process for better reliability
 - **REMOVED**: Automatic migration execution during package installation
