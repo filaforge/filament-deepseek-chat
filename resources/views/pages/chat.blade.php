@@ -129,8 +129,31 @@
                         icon="heroicon-o-chat-bubble-left-right"
                         class="deepseek-empty-icon"
                     />
-                    <h3 class="text-lg font-medium mb-2 mt-2">Start a conversation</h3>
-                    <p class="text-sm">Ask me anything...</p>
+                    <h3 class="text-lg font-medium mb-2 mt-2">
+                        @if($this->hasApiKey())
+                            Start a conversation
+                        @else
+                            Set your API key to start chatting
+                        @endif
+                    </h3>
+                    <p class="text-sm">
+                        @if($this->hasApiKey())
+                            Ask me anything...
+                        @else
+                            You need to set your DeepSeek API key to start chatting.
+                        @endif
+                    </p>
+                    @if(!$this->hasApiKey())
+                        <div class="mt-4">
+                            <x-filament::button
+                                color="primary"
+                                icon="heroicon-o-key"
+                                @click="$dispatch('open-modal', { id: 'set-api-key-modal' })"
+                            >
+                                Set API Key
+                            </x-filament::button>
+                        </div>
+                    @endif
                 </div>
             @else
                 @foreach($messages as $index => $message)
@@ -330,9 +353,9 @@
         </div>
     </x-filament::section>
     <x-filament::modal id="set-api-key-modal" width="md" heading="Set API Key">
-    <form x-on:submit.prevent="$wire.saveApiKey($refs.apiKey.value); $dispatch('close-modal', { id: 'set-api-key-modal' })">
+    <form x-on:submit.prevent="$wire.saveApiKey($refs.apiKey.value); $dispatch('close-modal', { id: 'set-api-key-modal' }); setTimeout(() => window.location.reload(), 500);">
         <x-filament::input.wrapper class="w-full" style="height:3rem;margin-bottom:1rem;">
-            <textarea id="deepseek-api-key" x-ref="apiKey" rows="4" style="min-width: 100%; height: 3rem;padding:0.6rem;" placeholder="Enter your DeepSeek API key..." class="fi-input block w-full resize-y border-none bg-transparent text-base text-gray-950 placeholder:text-gray-500 focus:ring-0 focus:outline-none dark:text-white dark:placeholder:text-gray-400 sm:text-sm"></textarea>
+            <textarea id="deepseek-api-key" x-ref="apiKey" rows="4" style="min-width: 100%; height: 3rem;padding:0.6rem;" placeholder="Enter your DeepSeek API key..." class="fi-input block w-full resize-y border-none bg-transparent text-base text-gray-950 placeholder:text-gray-500 focus:ring:0 focus:outline-none dark:text-white dark:placeholder:text-gray-400 sm:text-sm"></textarea>
         </x-filament::input.wrapper>
         <div class="mt-4 flex justify-end gap-2">
             <x-filament::button color="gray" type="button" style="margin-right:0.5rem;" x-on:click="$dispatch('close-modal', { id: 'set-api-key-modal' })">Cancel</x-filament::button>

@@ -276,10 +276,30 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
     {
         $user = auth()->user();
         if (! $user) return;
-
+        
         // Get or create settings for the user
         $settings = DeepseekSetting::forUser($user->id);
         $settings->update(['api_key' => $apiKey]);
+        
+        // Show success notification
+        \Filament\Notifications\Notification::make()
+            ->title('API key saved successfully')
+            ->success()
+            ->send();
+    }
+
+    public function openApiKeyModal(): void
+    {
+        $this->dispatch('open-modal', ['id' => 'set-api-key-modal']);
+    }
+
+    public function hasApiKey(): bool
+    {
+        $userId = (int) auth()->id();
+        if (!$userId) return false;
+        
+        $apiKey = DeepseekSetting::getApiKeyForUser($userId);
+        return !empty($apiKey);
     }
 
     public function send(): void
@@ -301,7 +321,11 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
         $timeout = DeepseekSetting::getTimeoutForUser($userId);
 
         if (!$apiKey) {
-            $this->messages[] = ['role' => 'assistant', 'content' => 'Missing DeepSeek API key. Set it in config or .env.'];
+            // Instead of showing error message, trigger the Set API Key modal
+            $this->dispatch('open-modal', ['id' => 'set-api-key-modal']);
+            
+            // Add a helpful message to guide the user
+            $this->messages[] = ['role' => 'assistant', 'content' => 'Please set your DeepSeek API key to start chatting. You can get one from [DeepSeek Console](https://platform.deepseek.com/).'];
             $this->dispatch('messageReceived');
             return;
         }
