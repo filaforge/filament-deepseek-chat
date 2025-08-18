@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class DeepseekSetting extends Model
 {
     protected $table = 'deepseek_settings';
-    
+
     protected $fillable = [
         'user_id',
         'api_key',
@@ -54,12 +54,12 @@ class DeepseekSetting extends Model
         if (env('DEEPSEEK_API_KEY')) {
             return env('DEEPSEEK_API_KEY');
         }
-        
+
         // Then check config
         if (config('deepseek-chat.api_key')) {
             return config('deepseek-chat.api_key');
         }
-        
+
         // Finally check user settings
         $setting = static::where('user_id', $userId)->first();
         return $setting?->api_key;
@@ -74,12 +74,12 @@ class DeepseekSetting extends Model
         if (env('DEEPSEEK_BASE_URL')) {
             return env('DEEPSEEK_BASE_URL');
         }
-        
+
         // Then check config
         if (config('deepseek-chat.base_url')) {
             return config('deepseek-chat.base_url');
         }
-        
+
         // Finally check user settings
         $setting = static::where('user_id', $userId)->first();
         return $setting?->base_url ?: 'https://api.deepseek.com';
@@ -94,12 +94,12 @@ class DeepseekSetting extends Model
         if (env('DEEPSEEK_STREAM') !== null) {
             return filter_var(env('DEEPSEEK_STREAM'), FILTER_VALIDATE_BOOLEAN);
         }
-        
+
         // Then check config
         if (config('deepseek-chat.stream') !== null) {
             return config('deepseek-chat.stream');
         }
-        
+
         // Finally check user settings
         $setting = static::where('user_id', $userId)->first();
         return $setting?->stream ?? false;
@@ -114,12 +114,12 @@ class DeepseekSetting extends Model
         if (env('DEEPSEEK_TIMEOUT')) {
             return (int) env('DEEPSEEK_TIMEOUT');
         }
-        
+
         // Then check config
         if (config('deepseek-chat.timeout')) {
             return (int) config('deepseek-chat.timeout');
         }
-        
+
         // Finally check user settings
         $setting = static::where('user_id', $userId)->first();
         return $setting?->timeout ?: 60;
@@ -135,12 +135,12 @@ class DeepseekSetting extends Model
             $roles = explode(',', env('DEEPSEEK_ALLOW_ROLES'));
             return array_map('trim', $roles);
         }
-        
+
         // Then check config
         if (config('deepseek-chat.allow_roles')) {
             return (array) config('deepseek-chat.allow_roles');
         }
-        
+
         // Finally check user settings
         $setting = static::where('user_id', $userId)->first();
         return $setting?->allow_roles ?: [];
@@ -152,7 +152,7 @@ class DeepseekSetting extends Model
     public static function userHasAccess(int $userId): bool
     {
         $allowRoles = static::getAllowRolesForUser($userId);
-        
+
         // If no roles specified, allow all authenticated users
         if (empty($allowRoles)) {
             return true;

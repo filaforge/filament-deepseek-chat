@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->integer('timeout')->default(60);
             $table->json('allow_roles')->nullable();
             $table->timestamps();
-            
+
             // Ensure one settings record per user
             $table->unique('user_id');
         });

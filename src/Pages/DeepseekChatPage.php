@@ -356,7 +356,7 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
     {
         $user = auth()->user();
         if (! $user) return false;
-        
+
         return DeepseekSetting::userHasAccess($user->id);
     }
 

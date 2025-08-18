@@ -51,7 +51,7 @@ class DeepseekSettingsPage extends Page
         if (empty(trim($rolesString))) {
             return [];
         }
-        
+
         $roles = explode(',', $rolesString);
         return array_map('trim', array_filter($roles));
     }
@@ -70,18 +70,18 @@ class DeepseekSettingsPage extends Page
                             ->required()
                             ->helperText('Your DeepSeek API key. Keep this secure.')
                             ->columnSpanFull(),
-                        
+
                         TextInput::make('base_url')
                             ->label('Base URL')
                             ->placeholder('https://api.deepseek.com')
                             ->helperText('The base URL for DeepSeek API calls')
                             ->default('https://api.deepseek.com'),
-                        
+
                         Toggle::make('stream')
                             ->label('Enable Streaming')
                             ->helperText('Enable streaming responses from the API')
                             ->default(false),
-                        
+
                         TextInput::make('timeout')
                             ->label('Timeout (seconds)')
                             ->numeric()
@@ -89,7 +89,7 @@ class DeepseekSettingsPage extends Page
                             ->maxValue(300)
                             ->helperText('Request timeout in seconds')
                             ->default(60),
-                        
+
                         TextInput::make('allow_roles')
                             ->label('Allowed Roles')
                             ->placeholder('admin,staff,user')
@@ -108,12 +108,12 @@ class DeepseekSettingsPage extends Page
         }
 
         $data = $this->form->getState();
-        
+
         // Parse allow_roles from comma-separated string to array
         if (isset($data['allow_roles'])) {
             $data['allow_roles'] = $this->parseAllowRolesFromForm($data['allow_roles']);
         }
-        
+
         // Get or create settings for the user
         $settings = DeepseekSetting::forUser($user->id);
         $settings->update($data);
@@ -128,7 +128,7 @@ class DeepseekSettingsPage extends Page
     {
         $user = auth()->user();
         if (! $user) return false;
-        
+
         return DeepseekSetting::userHasAccess($user->id);
     }
 }
