@@ -59,7 +59,7 @@ class DeepseekChatServiceProvider extends PackageServiceProvider
 
         // Check if our migrations have already been run
         $migrationFiles = [
-            '2025_08_12_000000_add_deepseek_settings_to_users_table',
+            '2025_08_12_000000_create_deepseek_settings_table',
             '2025_08_12_000001_create_deepseek_conversations_table'
         ];
 
@@ -97,8 +97,9 @@ class DeepseekChatServiceProvider extends PackageServiceProvider
         $configExists = file_exists(config_path('deepseek-chat.php'));
         $viewsExist = is_dir(resource_path('views/vendor/deepseek-chat'));
         $migrationsExist = !empty(glob(database_path('migrations') . '/*_add_deepseek_settings_to_users_table.php'));
-
-        return !$configExists && !$viewsExist && !$migrationsExist;
+        $settingsTableExists = \Illuminate\Support\Facades\Schema::hasTable('deepseek_settings');
+        
+        return !$configExists && !$viewsExist && !$migrationsExist && !$settingsTableExists;
     }
 
     protected function publishAssets(): bool
@@ -122,7 +123,7 @@ class DeepseekChatServiceProvider extends PackageServiceProvider
 
             // Check if migrations have been published
             $migrationsPath = database_path('migrations');
-            $publishedMigrations = glob($migrationsPath . '/*_add_deepseek_settings_to_users_table.php');
+            $publishedMigrations = glob($migrationsPath . '/*_create_deepseek_settings_table.php');
             if (empty($publishedMigrations)) {
                 $this->publishMigrations();
                 $assetsPublished = true;

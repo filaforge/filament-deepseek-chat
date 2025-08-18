@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Filaforge\DeepseekChat\Models\Conversation;
+use Filaforge\DeepseekChat\Models\DeepseekSetting;
 use Filaforge\DeepseekChat\Pages\Actions\SetApiKey;
 
 class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
@@ -271,11 +272,14 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
         $this->loadConversations();
     }
 
-    public function saveApiKey(string $deepseek_api_key): void
+    public function saveApiKey(string $apiKey): void
     {
         $user = auth()->user();
         if (! $user) return;
-        $user->forceFill(['deepseek_api_key' => $deepseek_api_key])->save();
+        
+        // Get or create settings for the user
+        $settings = DeepseekSetting::forUser($user->id);
+        $settings->update(['api_key' => $apiKey]);
     }
 
     public function send(): void
@@ -291,8 +295,10 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
         // Emit event for frontend typing indicator
         $this->dispatch('messageSent');
 
-        $apiKey = auth()->user()?->deepseek_api_key ?: config('deepseek-chat.api_key');
-        $base = rtrim((string) config('deepseek-chat.base_url'), '/');
+        $userId = (int) auth()->id();
+        $apiKey = DeepseekSetting::getApiKeyForUser($userId);
+        $baseUrl = DeepseekSetting::getBaseUrlForUser($userId);
+        $timeout = DeepseekSetting::getTimeoutForUser($userId);
 
         if (!$apiKey) {
             $this->messages[] = ['role' => 'assistant', 'content' => 'Missing DeepSeek API key. Set it in config or .env.'];
@@ -302,8 +308,8 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
 
         try {
             $response = Http::withToken($apiKey)
-                ->timeout((int) config('deepseek-chat.timeout', 60))
-                ->post($base.'/v1/chat/completions', [
+                ->timeout($timeout)
+                ->post(rtrim($baseUrl, '/').'/v1/chat/completions', [
                     'model' => 'deepseek-chat',
                     'messages' => array_map(fn($m) => ['role' => $m['role'], 'content' => $m['content']], $this->messages),
                     'stream' => false,
