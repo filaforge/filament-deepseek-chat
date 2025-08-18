@@ -2,6 +2,16 @@
 
 All notable changes to `filaforge/deepseek-chat` will be documented in this file.
 
+## v0.8.2 - 2025-08-18
+- **NEW**: Settings modal integrated directly in chat window
+- **FIXED**: Route error when clicking settings button
+- **NEW**: Comprehensive settings form with all configuration options
+- **IMPROVED**: Better user experience with inline settings management
+- **NEW**: API configuration section (API key, base URL, stream, timeout)
+- **NEW**: Access control section (allowed roles configuration)
+- **IMPROVED**: Real-time form updates with wire:model
+- **FIXED**: Settings button now opens modal instead of navigating to separate page
+
 ## v0.8.1 - 2025-08-18
 - **IMPROVED**: Better UI and user experience
 - **NEW**: Settings action button in top right header
