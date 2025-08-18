@@ -34,7 +34,26 @@ class DeepseekSettingsPage extends Page
             'base_url' => $settings->base_url,
             'stream' => $settings->stream,
             'timeout' => $settings->timeout,
+            'allow_roles' => $this->formatAllowRolesForForm($settings->allow_roles),
         ]);
+    }
+
+    protected function formatAllowRolesForForm(?array $roles): string
+    {
+        if (empty($roles)) {
+            return '';
+        }
+        return implode(', ', $roles);
+    }
+
+    protected function parseAllowRolesFromForm(string $rolesString): array
+    {
+        if (empty(trim($rolesString))) {
+            return [];
+        }
+        
+        $roles = explode(',', $rolesString);
+        return array_map('trim', array_filter($roles));
     }
 
     public function form(Form $form): Form
@@ -70,6 +89,12 @@ class DeepseekSettingsPage extends Page
                             ->maxValue(300)
                             ->helperText('Request timeout in seconds')
                             ->default(60),
+                        
+                        TextInput::make('allow_roles')
+                            ->label('Allowed Roles')
+                            ->placeholder('admin,staff,user')
+                            ->helperText('Comma-separated list of roles that can access DeepSeek Chat. Leave empty to allow all authenticated users.')
+                            ->columnSpanFull(),
                     ])
                     ->columns(2)
             ]);
@@ -83,6 +108,11 @@ class DeepseekSettingsPage extends Page
         }
 
         $data = $this->form->getState();
+        
+        // Parse allow_roles from comma-separated string to array
+        if (isset($data['allow_roles'])) {
+            $data['allow_roles'] = $this->parseAllowRolesFromForm($data['allow_roles']);
+        }
         
         // Get or create settings for the user
         $settings = DeepseekSetting::forUser($user->id);
@@ -98,14 +128,7 @@ class DeepseekSettingsPage extends Page
     {
         $user = auth()->user();
         if (! $user) return false;
-        $allowed = (array) config('deepseek-chat.allow_roles', []);
-        if (empty($allowed)) {
-            return true;
-        }
-        if (method_exists($user, 'hasAnyRole')) {
-            return $user->hasAnyRole($allowed);
-        }
-        $role = data_get($user, 'role');
-        return $role ? in_array($role, $allowed, true) : false;
+        
+        return DeepseekSetting::userHasAccess($user->id);
     }
 }

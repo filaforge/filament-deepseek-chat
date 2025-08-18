@@ -276,7 +276,7 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
     {
         $user = auth()->user();
         if (! $user) return;
-        
+
         // Get or create settings for the user
         $settings = DeepseekSetting::forUser($user->id);
         $settings->update(['api_key' => $apiKey]);
@@ -356,15 +356,8 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
     {
         $user = auth()->user();
         if (! $user) return false;
-        $allowed = (array) config('deepseek-chat.allow_roles', []);
-        if (empty($allowed)) {
-            return true;
-        }
-        if (method_exists($user, 'hasAnyRole')) {
-            return $user->hasAnyRole($allowed);
-        }
-        $role = data_get($user, 'role');
-        return $role ? in_array($role, $allowed, true) : false;
+        
+        return DeepseekSetting::userHasAccess($user->id);
     }
 
     protected function canViewAllChats(): bool

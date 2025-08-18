@@ -14,9 +14,8 @@ return new class extends Migration {
             $table->string('base_url')->default('https://api.deepseek.com');
             $table->boolean('stream')->default(false);
             $table->integer('timeout')->default(60);
-            $table->json('allow_roles')->nullable();
             $table->timestamps();
-            
+
             // Ensure one settings record per user
             $table->unique('user_id');
         });

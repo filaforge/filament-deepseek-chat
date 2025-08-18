@@ -98,7 +98,7 @@ class DeepseekChatServiceProvider extends PackageServiceProvider
         $viewsExist = is_dir(resource_path('views/vendor/deepseek-chat'));
         $migrationsExist = !empty(glob(database_path('migrations') . '/*_add_deepseek_settings_to_users_table.php'));
         $settingsTableExists = \Illuminate\Support\Facades\Schema::hasTable('deepseek_settings');
-        
+
         return !$configExists && !$viewsExist && !$migrationsExist && !$settingsTableExists;
     }
 
@@ -126,7 +126,6 @@ class DeepseekChatServiceProvider extends PackageServiceProvider
             $publishedMigrations = glob($migrationsPath . '/*_create_deepseek_settings_table.php');
             if (empty($publishedMigrations)) {
                 $this->publishMigrations();
-                $assetsPublished = true;
             }
 
         } catch (\Exception $e) {
