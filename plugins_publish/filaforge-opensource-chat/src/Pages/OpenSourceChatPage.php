@@ -31,12 +31,12 @@ class OpenSourceChatPage extends Page implements Tables\Contracts\HasTable, HasF
     use Tables\Concerns\InteractsWithTable;
     use InteractsWithForms;
 
-    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-oval-left-ellipsis';
+    protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-chat-bubble-oval-left-ellipsis';
     protected static ?string $navigationLabel = 'OS Chat';
     protected static ?string $title = 'Open Source Chat';
-    protected static ?string $navigationGroup = 'System';
+    protected static \UnitEnum|string|null $navigationGroup = 'System';
     protected static ?int $navigationSort = 50;
-    protected static string $view = 'opensource-chat::pages.chat';
+    protected string $view = 'opensource-chat::pages.chat';
 
     // Chat state
     public ?string $userInput = '';
@@ -334,34 +334,63 @@ class OpenSourceChatPage extends Page implements Tables\Contracts\HasTable, HasF
         if ($profile) {
             $model = $profile->model_id ?: $model;
             if ($profile->base_url) { $base = rtrim($profile->base_url,'/'); }
+            // If provider is ollama and no explicit base given, default to config ollama base
+            if (!$profile->base_url && strtolower((string) $profile->provider) === 'ollama') {
+                $base = rtrim((string) config('opensource-chat.ollama.base_url', 'http://localhost:11434'), '/');
+            }
         }
 
         $prompt = $this->buildPrompt($this->messages);
         try {
-            $endpoint = $useOpenAi ? $base.'/v1/chat/completions' : $base.'/models/'.$model;
-            $req = Http::acceptJson()->timeout((int) config('opensource-chat.timeout',120))->connectTimeout((int) config('opensource-chat.connect_timeout',30));
-            $payload = $useOpenAi
-                ? [
-                    'model' => $model,
-                    'messages' => $this->buildOpenAiMessages($this->messages, (string) ($this->settings['system_prompt'] ?? 'You are a helpful assistant.')),
-                    'max_tokens' => 512,
-                    'temperature' => 0.7,
-                ]
-                : [
-                    'inputs' => $prompt,
-                    'parameters' => [
+            $isOllama = str_contains($base, 'localhost:11434') || str_contains($base, '127.0.0.1:11434') || ($profile && strtolower((string) $profile->provider) === 'ollama');
+            $req = Http::acceptJson()
+                ->timeout((int) config('opensource-chat.timeout',120))
+                ->connectTimeout((int) config('opensource-chat.connect_timeout',30));
+
+            if ($isOllama) {
+                // Ollama local API (/api/chat)
+                $endpoint = rtrim($base, '/').'/api/chat';
+                $payload = [
+                    'model' => $model ?: (string) config('opensource-chat.ollama.default_model_id', 'llama3.1'),
+                    'messages' => $this->buildOpenAiMessages($this->messages, (string) ($this->settings['system_prompt'] ?? '')),
+                    'stream' => false,
+                    'options' => [
                         'temperature' => 0.7,
-                        'max_new_tokens' => 512,
+                        'num_predict' => 512,
                     ],
                 ];
-            $response = $req->post($endpoint, $payload);
+                $response = $req->post($endpoint, $payload);
+            } else {
+                $endpoint = $useOpenAi ? $base.'/v1/chat/completions' : $base.'/models/'.$model;
+                $payload = $useOpenAi
+                    ? [
+                        'model' => $model,
+                        'messages' => $this->buildOpenAiMessages($this->messages, (string) ($this->settings['system_prompt'] ?? 'You are a helpful assistant.')),
+                        'max_tokens' => 512,
+                        'temperature' => 0.7,
+                    ]
+                    : [
+                        'inputs' => $prompt,
+                        'parameters' => [
+                            'temperature' => 0.7,
+                            'max_new_tokens' => 512,
+                        ],
+                    ];
+                $response = $req->post($endpoint, $payload);
+            }
             if ($response->failed()) {
                 $this->messages[] = ['role'=>'assistant','content'=>'API error: '.$response->status().' '.str($response->body())->limit(200)];
                 $this->dispatch('messageReceived');
                 return;
             }
             $data = $response->json();
-            $reply = $useOpenAi ? (string) data_get($data,'choices.0.message.content','No response.') : (string) data_get($data,'0.generated_text', data_get($data,'generated_text','No response.'));
+            if ($isOllama) {
+                $reply = (string) data_get($data, 'message.content', 'No response.');
+            } else {
+                $reply = $useOpenAi
+                    ? (string) data_get($data,'choices.0.message.content','No response.')
+                    : (string) data_get($data,'0.generated_text', data_get($data,'generated_text','No response.'));
+            }
             $this->messages[] = ['role'=>'assistant','content'=>$reply];
             $user = auth()->user();
             if ($user) {

@@ -7,11 +7,11 @@ use Filament\Notifications\Notification;
 
 class OpenSourceSettingsPage extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-cog-6-tooth';
     protected static ?string $navigationLabel = 'OS Chat Settings';
     protected static ?string $title = 'Open Source Chat Settings';
     protected static ?int $navigationSort = 51;
-    protected static string $view = 'opensource-chat::pages.settings';
+    protected string $view = 'opensource-chat::pages.settings';
 
     public ?string $apiKey = null; // if per-user key becomes needed
 

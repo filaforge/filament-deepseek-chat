@@ -19,19 +19,18 @@ class OpensourceChatServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasViews()
             ->hasTranslations()
-            ->hasMigrations([
-                'create_oschat_conversations_table',
-                'create_oschat_model_profiles_table',
-                'create_oschat_settings_table',
-                'add_oschat_last_profile_id_to_users_table',
-            ]);
+            // Load migrations directly from package's database/migrations directory at runtime
+            ->runsMigrations();
     }
 
     public function packageBooted(): void
     {
+        // Register raw resources for now; build step can write to dist when bundling
+        $cssPath = __DIR__.'/../resources/css/opensource-chat.css';
+        $jsPath = __DIR__.'/../resources/js/opensource-chat.js';
         FilamentAsset::register([
-            Css::make('opensource-chat-styles', __DIR__.'/../resources/dist/opensource-chat.css'),
-            Js::make('opensource-chat-scripts', __DIR__.'/../resources/dist/opensource-chat.js'),
+            Css::make('opensource-chat-styles', $cssPath),
+            Js::make('opensource-chat-scripts', $jsPath),
         ], package: 'filaforge/opensource-chat');
     }
 }

@@ -76,6 +76,7 @@ class AdminPanelProvider extends PanelProvider
             ->plugin(\Filaforge\SystemTools\SystemToolsPlugin::make())
             ->plugin(\Filaforge\TerminalConsole\TerminalConsolePlugin::make())
             ->plugin(\Filaforge\ShellTerminal\FilaforgeShellTerminalPlugin::make())
+            ->plugin(\Filaforge\OpensourceChat\OpensourceChatPlugin::make())
             ->plugin(\Filaforge\Wirechat\WirechatPlugin::make())
             ->plugin(\Filaforge\UserManager\UserManagerPlugin::make())
             ->plugin(\Awcodes\QuickCreate\QuickCreatePlugin::make())

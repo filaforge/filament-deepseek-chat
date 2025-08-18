@@ -22,4 +22,10 @@ return [
     // Generic timeouts
     'timeout' => env('OSCHAT_TIMEOUT', 120),
     'connect_timeout' => env('OSCHAT_CONNECT_TIMEOUT', 30),
+
+    // Ollama local defaults (optional convenience)
+    'ollama' => [
+        'base_url' => env('OLLAMA_BASE_URL', 'http://localhost:11434'),
+        'default_model_id' => env('OLLAMA_MODEL_ID', 'llama3.1'),
+    ],
 ];

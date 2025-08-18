@@ -17,6 +17,7 @@
         "filaforge/hello-widget": "*",
         "filaforge/huggingface-chat": "*",
         "filaforge/ollama-chat": "*",
+        "filaforge/opensource-chat": "*",
         "filaforge/shell-terminal": "*",
         "filaforge/system-monitor": "*",
         "filaforge/system-packages": "*",
