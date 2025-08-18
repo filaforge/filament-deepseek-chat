@@ -276,11 +276,11 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
     {
         $user = auth()->user();
         if (! $user) return;
-        
+
         // Get or create settings for the user
         $settings = DeepseekSetting::forUser($user->id);
         $settings->update(['api_key' => $apiKey]);
-        
+
         // Show success notification
         \Filament\Notifications\Notification::make()
             ->title('API key saved successfully')
@@ -297,7 +297,7 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
     {
         $userId = (int) auth()->id();
         if (!$userId) return false;
-        
+
         $apiKey = DeepseekSetting::getApiKeyForUser($userId);
         return !empty($apiKey);
     }
@@ -323,7 +323,7 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
         if (!$apiKey) {
             // Instead of showing error message, trigger the Set API Key modal
             $this->dispatch('open-modal', ['id' => 'set-api-key-modal']);
-            
+
             // Add a helpful message to guide the user
             $this->messages[] = ['role' => 'assistant', 'content' => 'Please set your DeepSeek API key to start chatting. You can get one from [DeepSeek Console](https://platform.deepseek.com/).'];
             $this->dispatch('messageReceived');
