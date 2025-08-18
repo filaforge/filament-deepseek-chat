@@ -3,7 +3,7 @@
   "description": "Filament panel plugin providing a DeepSeek chat page with admin-manageable API key.",
   "type": "library",
   "license": "MIT",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "keywords": ["Laravel", "Filament", "Platform"],
   "homepage": "https://github.com/filaforge/deepseek-chat",
   "authors": [
