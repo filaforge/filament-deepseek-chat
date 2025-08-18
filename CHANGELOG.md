@@ -2,6 +2,11 @@
 
 All notable changes to `filaforge/deepseek-chat` will be documented in this file.
 
+## v0.8.4 - 2025-08-18
+- **IMPROVED**: Settings button now opens the Set API Key modal for quick access
+- **FIXED**: Moved margin-top to apply above the button instead of the text
+- **CONFIRMED**: Migrations are published under tag `deepseek-chat-migrations`
+
 ## v0.8.3 - 2025-08-18
 - **IMPROVED**: Settings now display in main section instead of modal
 - **REMOVED**: Settings button from header (no longer needed)

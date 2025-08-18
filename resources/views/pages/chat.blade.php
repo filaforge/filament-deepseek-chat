@@ -136,7 +136,7 @@
                             Set your API key to start chatting
                         @endif
                     </h3>
-                    <p class="text-sm" style="margin-top: 20px;">
+                    <p class="text-sm">
                         @if($this->hasApiKey())
                             Ask me anything...
                         @else
@@ -144,7 +144,7 @@
                         @endif
                     </p>
                     @if(!$this->hasApiKey())
-                        <div class="mt-4">
+                        <div class="mt-4" style="margin-top: 20px;">
                             <x-filament::button
                                 color="primary"
                                 icon="heroicon-o-key"
@@ -419,7 +419,7 @@
                             icon="heroicon-o-cog-6-tooth"
                             class="mr-2"
                             style="margin-right: 0.5rem;"
-                            wire:click="toggleSettings"
+                            @click.prevent="$dispatch('open-modal', { id: 'set-api-key-modal' })"
                         >
                             Settings
                         </x-filament::button>
