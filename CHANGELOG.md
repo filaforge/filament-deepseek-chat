@@ -2,6 +2,14 @@
 
 All notable changes to `filaforge/deepseek-chat` will be documented in this file.
 
+## v0.9.0 - 2025-08-18
+- **RELEASE**: Version alignment for tagging (composer.json set to 0.9.0)
+- **HOUSEKEEPING**: Ensure tags match composer.json to prevent Packagist skips
+
+## v0.8.5 - 2025-08-18
+- **DOCS**: Added explicit instructions to publish migrations, with manual copy fallback
+- **UX**: Chat menu shown at top-level (no navigation group)
+
 ## v0.8.4 - 2025-08-18
 - **IMPROVED**: Settings button now opens the Set API Key modal for quick access
 - **FIXED**: Moved margin-top to apply above the button instead of the text
