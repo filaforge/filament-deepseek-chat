@@ -1,0 +1,20 @@
+{
+    "name": "filaforge-shell-terminal",
+    "version": "1.0.0",
+    "description": "Shell Terminal Plugin for FilamentPHP",
+    "scripts": {
+        "dev": "node bin/build.js --dev",
+        "build": "node bin/build.js --build",
+        "watch": "node bin/build.js --watch"
+    },
+    "devDependencies": {
+        "esbuild": "^0.19.0",
+        "postcss": "^8.4.0",
+        "postcss-cli": "^10.1.0",
+        "postcss-nesting": "^12.0.0",
+        "cssnano": "^6.0.0",
+        "xterm": "^5.3.0",
+        "xterm-addon-fit": "^0.8.0",
+        "xterm-addon-web-links": "^0.8.0"
+    }
+}

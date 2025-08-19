@@ -1,0 +1,29 @@
+{
+  "name": "filaforge/clipboard-history",
+  "description": "Clipboard History widget for Filament v4",
+  "type": "library",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.1",
+    "filament/filament": "^4.0",
+    "laravel/framework": "^12.0",
+    "spatie/laravel-package-tools": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Filaforge\\ClipboardHistory\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Filaforge\\ClipboardHistory\\Providers\\ClipboardHistoryServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
+
+
+

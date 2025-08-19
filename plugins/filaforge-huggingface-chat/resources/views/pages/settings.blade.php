@@ -3,7 +3,7 @@
 		<x-filament::section>
 			<x-slot name="heading">API Configuration</x-slot>
 			<x-slot name="description">Configure your Hugging Face API token for authentication</x-slot>
-			
+
 			<form wire:submit.prevent="save" class="space-y-4">
 				<div class="grid grid-cols-1 gap-4">
 					<div>
@@ -20,7 +20,7 @@
 						</x-filament::field-wrapper.helper-text>
 					</div>
 				</div>
-				
+
 				<div class="flex justify-end">
 					<x-filament::button type="submit" size="sm" icon="heroicon-o-key">
 						Save API Token
@@ -32,7 +32,7 @@
 		<x-filament::section>
 			<x-slot name="heading">Model & Request Settings</x-slot>
 			<x-slot name="description">Configure default model parameters and request settings</x-slot>
-			
+
 			<form wire:submit.prevent="saveSettingsForm" class="space-y-4" wire:key="hf-settings-form">
 				{{ $this->form }}
 				<div class="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">

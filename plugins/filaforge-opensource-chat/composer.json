@@ -1,0 +1,51 @@
+{
+    "name": "filaforge/opensource-chat",
+    "description": "Open Source Chat management plugin for FilamentPHP with model profiles, user settings, and conversations CRUD pages.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "Laravel",
+        "Filament",
+        "Chat",
+        "AI",
+        "OpenSource",
+        "LLM"
+    ],
+    "homepage": "https://github.com/filaforge/opensource-chat",
+    "authors": [
+        {
+            "name": "Filaforge",
+            "email": "filaforger@gmail.com",
+            "homepage": "https://github.com/filaforge"
+        }
+    ],
+    "support": {
+        "email": "filaforger@gmail.com",
+        "source": "https://github.com/filaforge/opensource-chat",
+        "issues": "https://github.com/filaforge/opensource-chat/issues",
+        "docs": "https://github.com/filaforge/opensource-chat#readme"
+    },
+    "require": {
+        "php": "^8.1",
+        "filament/filament": "^3.2|^4.0",
+        "illuminate/support": "^10.0|^11.0|^12.0",
+        "spatie/laravel-package-tools": "^1.16"
+    },
+    "autoload": {
+        "psr-4": {
+            "Filaforge\\OpensourceChat\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Filaforge\\OpensourceChat\\OpensourceChatServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

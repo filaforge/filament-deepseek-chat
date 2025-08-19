@@ -4,20 +4,20 @@
   "type": "library",
   "license": "MIT",
   "keywords": [
-    "Laravel", 
-    "Filament", 
-    "HuggingFace", 
-    "Ollama", 
-    "DeepSeek", 
-    "AI", 
-    "Chat", 
-    "LLM", 
+    "Laravel",
+    "Filament",
+    "HuggingFace",
+    "Ollama",
+    "DeepSeek",
+    "AI",
+    "Chat",
+    "LLM",
     "Machine Learning",
     "Filament Plugin"
   ],
   "homepage": "https://github.com/filaforge/huggingface-chat",
   "authors": [
-    { 
+    {
       "name": "Filaforge Team",
       "email": "filaforger@gmail.com",
       "homepage": "https://github.com/filaforge"

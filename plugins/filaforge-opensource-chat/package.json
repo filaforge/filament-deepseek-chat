@@ -1,0 +1,8 @@
+{
+  "name": "filaforge-opensource-chat",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo 'noop build'"
+  }
+}
