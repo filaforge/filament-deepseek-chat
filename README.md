@@ -18,9 +18,9 @@ This plugin is built for the Filaforge Platform, but it works in any Filament v4
 - Per-user API key management via a settings page
 - Conversation history stored in your database
 - Simple install, ships with config, views, and migrations
-- **Simplified installation** - no automatic operations that could break your site
-- **Manual control** - you decide when to run migrations and optimizations
-- **Production ready** - safe installation process for production environments
+- **Fully automatic installation** - no manual commands required
+- **Automatic asset publishing** - config, views, and migrations published automatically
+- **Automatic optimization** - runs `php artisan optimize` after installation
 
 ---
 
@@ -39,21 +39,14 @@ This plugin is built for the Filaforge Platform, but it works in any Filament v4
 composer require filaforge/deepseek-chat
 ```
 
-### Step 2: Publish assets (optional but recommended)
-```bash
-php artisan vendor:publish --tag=deepseek-chat-config
-php artisan vendor:publish --tag=deepseek-chat-views
-php artisan vendor:publish --tag=deepseek-chat-migrations
-```
+**That's it!** The package will automatically:
+- Publish configuration files to `config/deepseek-chat.php`
+- Publish view files to `resources/views/vendor/deepseek-chat/`
+- Publish migration files to `database/migrations/`
+- Run database migrations to create required tables
+- Execute `php artisan optimize` to cache routes and config
 
-**Note:** Assets are automatically published on first web request, but manual publishing is recommended for production environments.
-
-### Step 3: Run migrations
-```bash
-php artisan migrate
-```
-
-### Step 4: Register the plugin in your Filament panel
+### Step 2: Register the plugin in your Filament panel (important)
 Add the panel plugin to your panel provider so the pages show in the sidebar.
 
 - File in this app: `app/Providers/Filament/AdminPanelProvider.php`
@@ -74,8 +67,10 @@ public function panel(\Filament\Panel $panel): \Filament\Panel
 ```
 Note: If your app has multiple panels, add the plugin to whichever panel should expose the chat.
 
-### Step 5: Start using the plugin!
-The plugin is now fully installed and ready to use.
+---
+
+### Step 3: Start using the plugin!
+The plugin is now fully installed and ready to use. No additional setup required.
 
 ---
 
@@ -91,44 +86,6 @@ return [
     'timeout' => env('DEEPSEEK_TIMEOUT', 60),
 ];
 ```
-
-### Environment Variable Override System
-The plugin supports environment variable override with the following priority (highest to lowest):
-
-1. **Environment Variables** (highest priority)
-2. **Config File** (medium priority)  
-3. **User Settings Table** (lowest priority)
-
-#### Supported Environment Variables:
-```env
-# API Configuration
-DEEPSEEK_API_KEY=your-key-here
-DEEPSEEK_BASE_URL=https://api.deepseek.com
-DEEPSEEK_STREAM=false
-DEEPSEEK_TIMEOUT=60
-
-# Access Control
-DEEPSEEK_ALLOW_ROLES=admin,staff,user
-```
-
-#### Environment Variable Examples:
-```env
-# Override all settings globally
-DEEPSEEK_API_KEY=sk-1234567890abcdef
-DEEPSEEK_BASE_URL=https://custom-api.deepseek.com
-DEEPSEEK_STREAM=true
-DEEPSEEK_TIMEOUT=120
-DEEPSEEK_ALLOW_ROLES=admin,superuser
-
-# Or override specific settings
-DEEPSEEK_API_KEY=sk-1234567890abcdef
-DEEPSEEK_ALLOW_ROLES=admin
-```
-
-### User Settings Management
-Users can configure their own settings through the DeepSeek Settings page, which will be used unless overridden by environment variables or config files.
-
-**Note**: Environment variables always take precedence over user settings, making them perfect for deployment-specific configurations.
 
 Common `.env` settings:
 ```env
@@ -186,11 +143,11 @@ composer update filaforge/deepseek-chat
 ---
 
 ## Troubleshooting
-- **Migrations are manual** - run `php artisan migrate` after publishing migrations
-- **Assets are auto-published** - but manual publishing is recommended for production
-- **No automatic optimization** - run `php artisan optimize` manually if needed
+- **Migrations are automatic** - no need to run `php artisan migrate` manually
+- **Assets are auto-published** - no need to run `php artisan vendor:publish` manually
+- **Optimization is automatic** - no need to run `php artisan optimize` manually
 - If you encounter any issues, the plugin logs all operations to Laravel's log files
-- Make sure you added the panel plugin in Step 4; otherwise pages won't be registered
+- Make sure you added the panel plugin in Step 2; otherwise pages won't be registered
 
 ---
 

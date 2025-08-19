@@ -43,18 +43,62 @@ class DeepseekChatServiceProvider extends PackageServiceProvider
 
     protected function autoSetup(): void
     {
-        // Only run during web requests, not console commands
+        // Check if we're in a console command or web request
         if (app()->runningInConsole() && !app()->runningUnitTests()) {
+            // Skip auto-setup during console commands to avoid conflicts
             return;
         }
 
-        // Check if Laravel is ready (migrations table exists)
+        // Check if migrations table exists (Laravel is ready)
         if (!Schema::hasTable('migrations')) {
             return;
         }
 
-        // Only publish assets if they haven't been published yet
-        $this->publishAssets();
+        // Check if this is a first-time installation
+        $isFirstInstall = $this->isFirstTimeInstallation();
+
+        // Check if our migrations have already been run
+        $migrationFiles = [
+            '2025_08_12_000000_add_deepseek_settings_to_users_table',
+            '2025_08_12_000001_create_deepseek_conversations_table'
+        ];
+
+        $migrationsRun = false;
+        foreach ($migrationFiles as $migrationFile) {
+            $migrationPath = __DIR__ . '/../../database/migrations/' . $migrationFile . '.php';
+            if (file_exists($migrationPath)) {
+                // Check if this migration has been run
+                $migrationName = str_replace('.php', '', $migrationFile);
+                if (!$this->hasMigrationBeenRun($migrationName)) {
+                    // Run the migration
+                    $this->runMigration($migrationPath);
+                    $migrationsRun = true;
+                }
+            }
+        }
+
+        // Publish assets, views, and config if needed
+        $assetsPublished = $this->publishAssets();
+
+        // Run optimize if migrations were run or assets were published
+        if ($migrationsRun || $assetsPublished || $this->shouldRunOptimize()) {
+            $this->runOptimize();
+        }
+
+        // Log installation completion
+        if ($isFirstInstall && ($migrationsRun || $assetsPublished)) {
+            Log::info('DeepSeek Chat plugin installation completed successfully');
+        }
+    }
+
+    protected function isFirstTimeInstallation(): bool
+    {
+        // Check if any of our assets exist in the application
+        $configExists = file_exists(config_path('deepseek-chat.php'));
+        $viewsExist = is_dir(resource_path('views/vendor/deepseek-chat'));
+        $migrationsExist = !empty(glob(database_path('migrations') . '/*_add_deepseek_settings_to_users_table.php'));
+
+        return !$configExists && !$viewsExist && !$migrationsExist;
     }
 
     protected function publishAssets(): bool
@@ -78,9 +122,10 @@ class DeepseekChatServiceProvider extends PackageServiceProvider
 
             // Check if migrations have been published
             $migrationsPath = database_path('migrations');
-            $publishedMigrations = glob($migrationsPath . '/*_create_deepseek_settings_table.php');
+            $publishedMigrations = glob($migrationsPath . '/*_add_deepseek_settings_to_users_table.php');
             if (empty($publishedMigrations)) {
                 $this->publishMigrations();
+                $assetsPublished = true;
             }
 
         } catch (\Exception $e) {
@@ -96,9 +141,9 @@ class DeepseekChatServiceProvider extends PackageServiceProvider
             $configSource = __DIR__ . '/../../config/deepseek-chat.php';
             $configDest = config_path('deepseek-chat.php');
 
-            if (file_exists($configSource)) {
-                if (!is_dir(dirname($configDest))) {
-                    mkdir(dirname($configDest), 0755, true);
+            if (file_exists($configSource) && !file_exists($configDest)) {
+                if (!is_dir(config_path())) {
+                    mkdir(config_path(), 0755, true);
                 }
                 copy($configSource, $configDest);
                 Log::info('DeepSeek Chat config published successfully');
@@ -129,11 +174,19 @@ class DeepseekChatServiceProvider extends PackageServiceProvider
     protected function publishMigrations(): void
     {
         try {
-            $migrationsPath = __DIR__ . '/../../database/migrations';
-            $destinationPath = database_path('migrations');
+            $migrationsSource = __DIR__ . '/../../database/migrations';
+            $migrationsDest = database_path('migrations');
 
-            if (is_dir($migrationsPath)) {
-                $this->copyDirectory($migrationsPath, $destinationPath);
+            if (is_dir($migrationsSource)) {
+                $files = glob($migrationsSource . '/*.php');
+                foreach ($files as $file) {
+                    $filename = basename($file);
+                    $destFile = $migrationsDest . '/' . $filename;
+
+                    if (!file_exists($destFile)) {
+                        copy($file, $destFile);
+                    }
+                }
                 Log::info('DeepSeek Chat migrations published successfully');
             }
         } catch (\Exception $e) {
@@ -163,5 +216,89 @@ class DeepseekChatServiceProvider extends PackageServiceProvider
             }
         }
         closedir($dir);
+    }
+
+    protected function shouldRunOptimize(): bool
+    {
+        // Check if we should run optimize (e.g., if config was just published)
+        $configPath = config_path('deepseek-chat.php');
+        $configExists = file_exists($configPath);
+
+        // If config doesn't exist, we definitely need to run optimize
+        if (!$configExists) {
+            return true;
+        }
+
+        // Check if views were published
+        $viewsPath = resource_path('views/vendor/deepseek-chat');
+        if (!is_dir($viewsPath)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    protected function runOptimize(): void
+    {
+        try {
+            // Run optimize command
+            Artisan::call('optimize');
+            Log::info('DeepSeek Chat optimize completed successfully');
+        } catch (\Exception $e) {
+            Log::warning('Failed to run DeepSeek Chat optimize: ' . $e->getMessage());
+        }
+    }
+
+    protected function autoRunMigrations(): void
+    {
+        // This method is now deprecated in favor of autoSetup
+        $this->autoSetup();
+    }
+
+    protected function hasMigrationBeenRun(string $migrationName): bool
+    {
+        try {
+            // Check if the migration exists in the migrations table
+            $migrations = \DB::table('migrations')
+                ->where('migration', 'like', "%{$migrationName}%")
+                ->count();
+            return $migrations > 0;
+        } catch (\Exception $e) {
+            // If we can't check, assume it hasn't been run
+            Log::warning('Could not check migration status for DeepSeek Chat: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    protected function runMigration(string $migrationPath): void
+    {
+        try {
+            // Include and run the migration
+            require_once $migrationPath;
+            $migrationClass = $this->getMigrationClassFromFile($migrationPath);
+            if ($migrationClass) {
+                $migration = new $migrationClass();
+                $migration->up();
+
+                // Log successful migration
+                Log::info("DeepSeek Chat migration executed successfully: {$migrationClass}");
+            }
+        } catch (\Exception $e) {
+            // Log error but don't fail the package installation
+            Log::warning('Failed to auto-run DeepSeek Chat migration: ' . $e->getMessage());
+        }
+    }
+
+    protected function getMigrationClassFromFile(string $migrationPath): ?string
+    {
+        try {
+            $content = file_get_contents($migrationPath);
+            if (preg_match('/class\s+(\w+)\s+extends\s+Migration/', $content, $matches)) {
+                return $matches[1];
+            }
+        } catch (\Exception $e) {
+            Log::warning('Could not read migration file: ' . $e->getMessage());
+        }
+        return null;
     }
 }

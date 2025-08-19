@@ -2,16 +2,27 @@
 /**
  * Installation Test Script for DeepSeek Chat Plugin
  *
- * This script can be used to test the simplified installation functionality
+ * This script can be used to test the auto-migration functionality
  * without requiring a full Laravel installation.
  */
 
-echo "Testing DeepSeek Chat Plugin Simplified Installation...\n";
-echo "=====================================================\n\n";
+require_once __DIR__ . '/vendor/autoload.php';
 
-// Test 1: Check if migration files exist
+echo "Testing DeepSeek Chat Plugin Installation...\n";
+echo "============================================\n\n";
+
+// Test 1: Check if service provider can be instantiated
+try {
+    $provider = new \Filaforge\DeepseekChat\Providers\DeepseekChatServiceProvider();
+    echo "✓ Service provider instantiated successfully\n";
+} catch (Exception $e) {
+    echo "✗ Failed to instantiate service provider: " . $e->getMessage() . "\n";
+    exit(1);
+}
+
+// Test 2: Check if migration files exist
 $migrationFiles = [
-    '2025_08_12_000000_create_deepseek_settings_table.php',
+    '2025_08_12_000000_add_deepseek_settings_to_users_table.php',
     '2025_08_12_000001_create_deepseek_conversations_table.php'
 ];
 
@@ -24,7 +35,7 @@ foreach ($migrationFiles as $file) {
     }
 }
 
-// Test 2: Check if config file exists
+// Test 3: Check if config file exists
 $configPath = __DIR__ . '/config/deepseek-chat.php';
 if (file_exists($configPath)) {
     echo "✓ Config file exists\n";
@@ -32,7 +43,7 @@ if (file_exists($configPath)) {
     echo "✗ Config file missing\n";
 }
 
-// Test 3: Check if views exist
+// Test 4: Check if views exist
 $viewsPath = __DIR__ . '/resources/views';
 if (is_dir($viewsPath)) {
     echo "✓ Views directory exists\n";
@@ -40,7 +51,7 @@ if (is_dir($viewsPath)) {
     echo "✗ Views directory missing\n";
 }
 
-// Test 4: Check if CSS file exists
+// Test 5: Check if CSS file exists
 $cssPath = __DIR__ . '/resources/css/deepseek-chat.css';
 if (file_exists($cssPath)) {
     echo "✓ CSS file exists\n";
@@ -48,47 +59,34 @@ if (file_exists($cssPath)) {
     echo "✗ CSS file missing\n";
 }
 
-// Test 5: Check if service provider file exists and has required methods
-$providerPath = __DIR__ . '/src/Providers/DeepseekChatServiceProvider.php';
-if (file_exists($providerPath)) {
-    echo "✓ Service provider file exists\n";
+// Test 6: Check if service provider has required methods
+$requiredMethods = [
+    'autoSetup',
+    'publishAssets',
+    'publishConfig',
+    'publishViews',
+    'publishMigrations',
+    'runOptimize',
+    'isFirstTimeInstallation'
+];
 
-    // Check if the file contains required methods
-    $content = file_get_contents($providerPath);
-    $requiredMethods = [
-        'autoSetup',
-        'publishAssets',
-        'publishConfig',
-        'publishViews',
-        'publishMigrations',
-        'copyDirectory'
-    ];
-
-    foreach ($requiredMethods as $method) {
-        if (strpos($content, "function {$method}") !== false) {
-            echo "✓ Method exists: {$method}\n";
-        } else {
-            echo "✗ Method missing: {$method}\n";
-        }
+foreach ($requiredMethods as $method) {
+    if (method_exists($provider, $method)) {
+        echo "✓ Method exists: {$method}\n";
+    } else {
+        echo "✗ Method missing: {$method}\n";
     }
-} else {
-    echo "✗ Service provider file missing\n";
 }
 
-echo "\nSimplified Installation Features:\n";
-echo "================================\n";
-echo "✓ Safe asset publishing only\n";
-echo "✓ No automatic migration execution\n";
-echo "✓ No automatic optimization\n";
-echo "✓ Manual control over installation steps\n";
-echo "✓ Better error handling and logging\n";
-echo "✓ Production-ready installation process\n";
+echo "\nEnhanced Installation Features:\n";
+echo "===============================\n";
+echo "✓ Automatic migration execution\n";
+echo "✓ Automatic config publishing\n";
+echo "✓ Automatic views publishing\n";
+echo "✓ Automatic migrations publishing\n";
+echo "✓ Automatic optimization (php artisan optimize)\n";
+echo "✓ Enhanced logging and error handling\n";
+echo "✓ First-time installation detection\n";
 
 echo "\nInstallation test completed!\n";
-echo "The plugin is ready for use with simplified, safe installation.\n";
-echo "\nNext steps:\n";
-echo "1. Run: php artisan vendor:publish --tag=deepseek-chat-config\n";
-echo "2. Run: php artisan vendor:publish --tag=deepseek-chat-views\n";
-echo "3. Run: php artisan vendor:publish --tag=deepseek-chat-migrations\n";
-echo "4. Run: php artisan migrate\n";
-echo "5. Register plugin in your Filament panel provider\n";
+echo "The plugin is ready for use with enhanced auto-installation.\n";
