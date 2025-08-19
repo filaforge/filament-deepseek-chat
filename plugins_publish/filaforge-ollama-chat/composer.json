@@ -2,6 +2,7 @@
     "name": "filaforge/ollama-chat",
     "description": "Filament v4 Ollama chat plugin (conversations, settings, models).",
     "type": "library",
+    "version": "0.1.0",
     "license": "MIT",
     "require": {
         "php": "^8.1",

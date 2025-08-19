@@ -1,3 +1,9 @@
+## v0.1.0 - 2025-08-19
+
+- Initial release of Ollama Chat plugin for Filament v4
+- Conversations and Settings pages; models and config included
+- Assets and migrations included
+
 # CHANGELOG.md
 
 # Changelog

@@ -2,6 +2,7 @@
     "name": "filaforge/opensource-chat",
     "description": "Open Source Chat management plugin for FilamentPHP with model profiles, user settings, and conversations CRUD pages.",
     "type": "library",
+    "version": "0.1.0",
     "license": "MIT",
     "keywords": [
         "Laravel",

@@ -1,3 +1,9 @@
+## v0.1.0 - 2025-08-19
+
+- Initial release of Chat AI plugin for Filament v4
+- Chat, Conversations, Settings pages with per-user configuration
+- Published assets and config; migrations for core entities
+
 # Changelog
 
 All notable changes to the Filaforge HuggingFace Chat plugin will be documented in this file.
