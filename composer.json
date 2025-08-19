@@ -1,5 +1,5 @@
 {
-  "name": "filaforge/deepseek-chat",
+  "name": "filament/deepseek-chat",
   "description": "Filament panel plugin providing a DeepSeek chat page with admin-manageable API key.",
   "type": "library",
   "license": "MIT",
