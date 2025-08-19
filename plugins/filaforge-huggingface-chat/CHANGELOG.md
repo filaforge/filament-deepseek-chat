@@ -1,3 +1,13 @@
+## v0.1.0 - 2025-08-19
+
+- Initial public release of HuggingFace Chat for Filament v4
+- Pages: Chat, Conversations, Settings
+- Models: Conversation, ModelProfile, ModelProfileUsage, Setting
+- Config: `config/hf-chat.php` with API token, defaults, and options
+- Assets: CSS/JS for chat UI; translations and views published
+- Migrations for conversations, settings, model profiles and usages
+- Panel plugin and service provider registration
+
 # Changelog
 
 All notable changes to the Filaforge HuggingFace Chat plugin will be documented in this file.
