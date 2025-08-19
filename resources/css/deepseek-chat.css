@@ -1,0 +1,568 @@
+/* DeepSeek Chat Custom Styles */
+
+/* Hide elements with x-cloak until Alpine.js initializes */
+[x-cloak] { display: none !important; }
+
+/* Remove padding from Filament section content wrapper */
+.fi-section-content:has(.deepseek-chat-container) {
+    padding: 0 !important;
+}
+
+/* Hide section header when wrapping the chat container */
+.fi-section:has(.deepseek-chat-container) .fi-section-header {
+    display: block !important;
+}
+
+/* Hide Filament page header (the big page title/header bar) on this page only */
+.fi-page:has(.deepseek-chat-container) .fi-header,
+.fi-page:has(.deepseek-chat-container) .fi-page-header-main-ctn > .fi-header {
+    display: block !important;
+}
+
+/* Remove section chrome radius so the inner chat container radius is visible */
+.fi-section:has(.deepseek-chat-container) .fi-section-content {
+    border-radius: 0 !important;
+}
+
+.deepseek-chat-container {
+    display: flex;
+    flex-direction: column;
+    background: #f9fafb;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    height: 70vh; /* fixed chat window height */
+    overflow: hidden; /* contain inner scrolling */
+}
+
+.dark .deepseek-chat-container {
+    background: #18181b;
+    border-color: #27272a;
+    box-shadow: 0 2px 8px rgba(0,0,0,.18);
+}
+
+.deepseek-chat-messages {
+    position: relative;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    overflow-y: auto;
+    background: transparent;
+    border-radius: 0.75rem;
+    border: none;
+    margin-bottom: 1rem;
+    flex: 1; /* Take up available height */
+    min-height: 0; /* Allow flexbox to shrink */
+}
+
+.dark .deepseek-chat-messages {
+    background: transparent;
+    border-color: transparent;
+}
+
+.deepseek-message {
+    display: flex;
+    gap: 0.75rem;
+    max-width: 56rem;
+}
+
+.deepseek-message.user {
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+.deepseek-message.ai {
+    justify-content: flex-start;
+    margin-right: auto;
+}
+
+.deepseek-message-avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.deepseek-message-avatar.user {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.deepseek-message-avatar.ai {
+    background-color: #6366f1;
+    color: white;
+}
+.deepseek-ai-avatar-img {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    object-fit: cover;
+}
+
+.deepseek-message-bubble {
+    position: relative;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    max-width: 20rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+@media (min-width: 640px) {
+    .deepseek-message-bubble {
+        max-width: 28rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .deepseek-message-bubble {
+        max-width: 32rem;
+    }
+}
+
+/* User bubble: match AI colors but with a subtle outline ring */
+.deepseek-message-bubble.user {
+    background-color: #f3f4f6; /* same as AI */
+    color: #1f2937;           /* same as AI */
+    border: 1px solid #e5e7eb; /* same as AI */
+    border-bottom-right-radius: 0.375rem;
+    /* Add a soft ring to distinguish the user's bubble */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 0 0 2px rgba(229, 231, 235, 0.7);
+}
+
+.deepseek-message-bubble.ai {
+    background-color: #f3f4f6;
+    color: #1f2937;
+    border: 1px solid #e5e7eb;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.dark .deepseek-message-bubble.ai {
+    background-color: #23232a;
+    color: #f9fafb;
+    border-color: #27272a;
+}
+
+.dark .deepseek-message-bubble.user {
+    background-color: #23232a; /* same as AI dark */
+    color: #f9fafb;            /* same as AI dark */
+    border-color: #27272a;     /* same as AI dark */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), 0 0 0 2px rgba(39, 39, 42, 0.8);
+}
+
+.deepseek-message-content {
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.deepseek-message-content.user {
+    white-space: pre-wrap;
+}
+
+.deepseek-message-content.ai {
+    line-height: 1.6;
+}
+
+/* Prose styling for AI messages */
+.deepseek-message-content.ai p {
+    margin: 0.5rem 0;
+}
+
+.deepseek-message-content.ai p:first-child {
+    margin-top: 0;
+}
+
+.deepseek-message-content.ai p:last-child {
+    margin-bottom: 0;
+}
+
+.deepseek-message-content.ai pre {
+    background-color: #111827;
+    color: #f9fafb;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin: 0.5rem 0;
+    border: 1px solid #374151;
+    overflow-x: auto;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.deepseek-message-content.ai code {
+    background-color: #f3f4f6;
+    color: #1f2937;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.dark .deepseek-message-content.ai code {
+    background-color: #374151;
+    color: #e5e7eb;
+}
+
+.deepseek-message-content.ai pre code {
+    background-color: transparent;
+    color: #f9fafb;
+    padding: 0;
+    font-size: 0.875rem;
+}
+
+/* Input area */
+.deepseek-chat-input {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.dark .deepseek-chat-input {
+    border-top-color: #374151;
+}
+
+.deepseek-input-wrapper {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+}
+
+/* Loading states */
+.deepseek-loading-dots {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.deepseek-loading-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: #9ca3af;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+.deepseek-loading-dot:nth-child(1) {
+    animation-delay: 0ms;
+}
+
+.deepseek-loading-dot:nth-child(2) {
+    animation-delay: 150ms;
+}
+
+.deepseek-loading-dot:nth-child(3) {
+    animation-delay: 300ms;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 0.4;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* Smooth animations */
+.deepseek-message {
+    transform: translateY(0);
+    transition: all 0.3s ease-out;
+}
+
+.deepseek-message.entering {
+    opacity: 0;
+    transform: translateY(0.5rem);
+}
+
+.deepseek-message.entered {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Scrollbar styling */
+.deepseek-chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.deepseek-chat-messages::-webkit-scrollbar-track {
+    background-color: #f3f4f6;
+}
+
+.dark .deepseek-chat-messages::-webkit-scrollbar-track {
+    background-color: #1f2937;
+}
+
+.deepseek-chat-messages::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 9999px;
+}
+
+.dark .deepseek-chat-messages::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+}
+
+.deepseek-chat-messages::-webkit-scrollbar-thumb:hover {
+    background-color: #9ca3af;
+}
+
+.dark .deepseek-chat-messages::-webkit-scrollbar-thumb:hover {
+    background-color: #6b7280;
+}
+
+/* Empty state */
+.deepseek-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6rem 0;
+    color: #6b7280;
+    height: 100%;
+    min-height: 40vh;
+}
+
+.dark .deepseek-empty-state {
+    color: #9ca3af;
+}
+
+.deepseek-empty-icon {
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1rem;
+    color: #d1d5db;
+}
+
+.dark .deepseek-empty-icon {
+    color: #4b5563;
+}
+
+/* Input/Send layout tweaks */
+.deepseek-textarea {
+    padding: 0.875rem 1rem; /* ~py-3.5 px-4 */
+}
+
+/* Fix the input wrapper and textarea to 4rem height on the chat page */
+.deepseek-textarea-outer .fi-input-wrp-content-ctn {
+    height: 4rem !important;
+    min-height: 4rem !important;
+    max-height: 4rem !important;
+    overflow: hidden !important;
+}
+
+.deepseek-send-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    margin-top: 1rem; /* mt-4 */
+}
+
+/* Shared scrollable area inside fixed-height container */
+.deepseek-chat-scroll {
+    flex: 1 1 auto;
+    min-height: 0; /* allow flex child to shrink within container */
+    overflow-y: auto;
+}
+
+/* Make the send button gray only while loading (data-loading="true") */
+.deepseek-chat-container[data-loading="true"] .deepseek-send-row .fi-btn:disabled,
+.deepseek-chat-container[data-loading="true"] .deepseek-send-row button[disabled] {
+    background-color: #9ca3af !important; /* gray-400 during request */
+    border-color: #9ca3af !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+
+/* Send Button - Override Filament's default button styles */
+.deepseek-send-button,
+.fi-btn.deepseek-send-button,
+.fi-btn.deepseek-send-button:not(:disabled),
+button.fi-btn.deepseek-send-button,
+button.deepseek-send-button,
+.fi-color-primary.deepseek-send-button,
+.fi-btn.fi-color-primary.deepseek-send-button,
+.fi-color-gray.deepseek-send-button,
+.fi-btn.fi-color-gray.deepseek-send-button {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.4em !important;
+    background: #6366f1 !important;
+    background-color: #6366f1 !important;
+    color: #fff !important;
+    border: none !important;
+    border-color: #6366f1 !important;
+    border-radius: 8px !important;
+    padding: 0.5em 1.2em !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    box-shadow: 0 1px 4px rgba(99,102,241,0.08) !important;
+    transition: background 0.18s, box-shadow 0.18s, transform 0.12s !important;
+    min-width: auto !important;
+}
+
+.deepseek-send-button:disabled,
+.fi-btn.deepseek-send-button:disabled,
+button.fi-btn.deepseek-send-button:disabled,
+button.deepseek-send-button:disabled,
+.fi-color-primary.deepseek-send-button:disabled {
+    background: #d1d5db !important;
+    background-color: #d1d5db !important;
+    color: #fff !important;
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+}
+
+/* Remove any default focus ring that could appear blue */
+/* (Reverted focus overrides) */
+
+.deepseek-send-button:hover:not(:disabled),
+.deepseek-send-button:focus:not(:disabled),
+.fi-btn.deepseek-send-button:hover:not(:disabled),
+.fi-btn.deepseek-send-button:focus:not(:disabled),
+button.fi-btn.deepseek-send-button:hover:not(:disabled),
+button.fi-btn.deepseek-send-button:focus:not(:disabled),
+button.deepseek-send-button:hover:not(:disabled),
+button.deepseek-send-button:focus:not(:disabled),
+.fi-color-primary.deepseek-send-button:hover:not(:disabled),
+.fi-color-gray.deepseek-send-button:hover:not(:disabled) {
+    background: #4f46e5 !important;
+    background-color: #4f46e5 !important;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.13) !important;
+    transform: translateY(-1px) scale(1.03) !important;
+}
+
+.dark .deepseek-send-button,
+.dark .fi-btn.deepseek-send-button,
+.dark .fi-btn.deepseek-send-button:not(:disabled),
+.dark button.fi-btn.deepseek-send-button,
+.dark button.deepseek-send-button,
+.dark .fi-color-primary.deepseek-send-button,
+.dark .fi-color-gray.deepseek-send-button {
+    background: #6366f1 !important;
+    background-color: #6366f1 !important;
+    color: #fff !important;
+}
+
+.dark .deepseek-send-button:disabled,
+.dark .fi-btn.deepseek-send-button:disabled,
+.dark button.fi-btn.deepseek-send-button:disabled,
+.dark button.deepseek-send-button:disabled,
+.dark .fi-color-primary.deepseek-send-button:disabled {
+    background: #27272a !important;
+    background-color: #27272a !important;
+    color: #a3a3a3 !important;
+}
+
+.dark .deepseek-send-button:hover:not(:disabled),
+.dark .deepseek-send-button:focus:not(:disabled),
+.dark .fi-btn.deepseek-send-button:hover:not(:disabled),
+.dark .fi-btn.deepseek-send-button:focus:not(:disabled),
+.dark button.fi-btn.deepseek-send-button:hover:not(:disabled),
+.dark button.fi-btn.deepseek-send-button:focus:not(:disabled),
+.dark button.deepseek-send-button:hover:not(:disabled),
+.dark button.deepseek-send-button:focus:not(:disabled),
+.dark .fi-color-primary.deepseek-send-button:hover:not(:disabled),
+.dark .fi-color-gray.deepseek-send-button:hover:not(:disabled) {
+    background: #4338ca !important;
+    background-color: #4338ca !important;
+}
+
+/* Yellow Loaders */
+.deepseek-center-loader {
+    display: none;
+    width: 100%;
+    min-height: 8rem;
+    justify-content: center !important;
+    align-items: center !important;
+    background: transparent;
+    margin-top: 0.25rem;
+}
+
+.deepseek-center-loader.is-loading { display: flex !important; }
+
+.dark .deepseek-center-loader { background: transparent; }
+
+/* Respect visibility toggling via classes; don't force display */
+
+.deepseek-yellow-spinner {
+    width: 80px !important;
+    height: 80px !important;
+    border: 6px solid #6366f1 !important;
+    border-top: 6px solid #4f46e5 !important;
+    border-radius: 50% !important;
+    animation: deepseekSpin 1.2s linear infinite !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+}
+
+.deepseek-yellow-spinner-small {
+    width: 24px !important;
+    height: 24px !important;
+    border: 3px solid #6366f1 !important;
+    border-top: 3px solid #4f46e5 !important;
+    border-radius: 50% !important;
+    animation: deepseekSpin 1.2s linear infinite !important;
+    margin: 0 auto !important;
+}
+
+@keyframes deepseekSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.dark .deepseek-yellow-spinner {
+    border-color: #6366f1 !important;
+    border-top-color: #4f46e5 !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4) !important;
+}
+
+.dark .deepseek-yellow-spinner-small {
+    border-color: #6366f1 !important;
+    border-top-color: #4f46e5 !important;
+}
+
+/* Conversations modal list styling */
+.deepseek-conv-list {
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    background: #fff;
+}
+.dark .deepseek-conv-list {
+    border-color: #27272a;
+    background: #0b0b0c;
+}
+.deepseek-conv-list .conv-row {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem; /* py-3 px-4 */
+    transition: background-color .15s ease;
+}
+.deepseek-conv-list .conv-row:hover {
+    background: #f8fafc; /* slate-50 */
+}
+.dark .deepseek-conv-list .conv-row:hover {
+    background: rgba(31, 41, 55, 0.5); /* slate-800/50 */
+}
+.deepseek-conv-list .conv-row.active {
+    background: rgba(99, 102, 241, 0.06); /* primary-500/6 */
+    outline: 1px solid rgba(99, 102, 241, 0.20);
+    outline-offset: -1px;
+}
+.dark .deepseek-conv-list .conv-row.active {
+    background: rgba(99, 102, 241, 0.12);
+    outline-color: rgba(99, 102, 241, 0.35);
+}
+.deepseek-conv-list .conv-actions { opacity: .6; }
+.deepseek-conv-list .conv-row:hover .conv-actions { opacity: 1; }
+
+#spinner-container {
+    padding-top:30px;
+    min-height:600px;
+    padding-bottom:90px;
+}
