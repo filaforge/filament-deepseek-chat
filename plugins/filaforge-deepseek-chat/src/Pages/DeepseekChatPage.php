@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Filaforge\DeepseekChat\Models\Conversation;
+use Filaforge\DeepseekChat\Models\DeepseekSetting;
 use Filaforge\DeepseekChat\Pages\Actions\SetApiKey;
 
 class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
@@ -33,6 +34,8 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
     /** @var array<int, array{id:int,title:?string,updated_at:string,user_id:int,user_name:string}> */
     public array $allConversationList = [];
     public bool $canViewAllChats = false;
+    public array $settings = [];
+    public bool $showSettings = false;
 
     public function mount(): void
     {
@@ -43,6 +46,7 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
         if ($this->canViewAllChats) {
             $this->loadAllConversations();
         }
+        $this->loadSettings();
     }
 
     public function table(Table $table): Table
@@ -271,11 +275,83 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
         $this->loadConversations();
     }
 
-    public function saveApiKey(string $deepseek_api_key): void
+    public function saveApiKey(string $apiKey): void
     {
         $user = auth()->user();
         if (! $user) return;
-        $user->forceFill(['deepseek_api_key' => $deepseek_api_key])->save();
+
+        // Get or create settings for the user
+        $settings = DeepseekSetting::forUser($user->id);
+        $settings->update(['api_key' => $apiKey]);
+
+        // Show success notification
+        \Filament\Notifications\Notification::make()
+            ->title('API key saved successfully')
+            ->success()
+            ->send();
+    }
+
+    public function openApiKeyModal(): void
+    {
+        $this->dispatch('open-modal', ['id' => 'set-api-key-modal']);
+    }
+
+    protected function loadSettings(): void
+    {
+        $userId = (int) auth()->id();
+        if (!$userId) return;
+
+        $setting = DeepseekSetting::forUser($userId);
+        $this->settings = [
+            'api_key' => $setting->api_key,
+            'base_url' => $setting->base_url,
+            'stream' => $setting->stream,
+            'timeout' => $setting->timeout,
+            'allow_roles' => is_array($setting->allow_roles) ? implode(', ', $setting->allow_roles) : '',
+        ];
+    }
+
+    public function saveSettings(): void
+    {
+        $user = auth()->user();
+        if (!$user) return;
+
+        $data = $this->settings;
+
+        // Parse allow_roles from comma-separated string to array
+        if (isset($data['allow_roles'])) {
+            $data['allow_roles'] = empty(trim($data['allow_roles'])) ? [] : array_map('trim', explode(',', $data['allow_roles']));
+        }
+
+        // Get or create settings for the user
+        $settings = DeepseekSetting::forUser($user->id);
+        $settings->update($data);
+
+        // Show success notification
+        \Filament\Notifications\Notification::make()
+            ->title('Settings saved successfully')
+            ->success()
+            ->send();
+
+        // Close the settings view
+        $this->showSettings = false;
+    }
+
+    public function toggleSettings(): void
+    {
+        $this->showSettings = !$this->showSettings;
+        if ($this->showSettings) {
+            $this->loadSettings();
+        }
+    }
+
+    public function hasApiKey(): bool
+    {
+        $userId = (int) auth()->id();
+        if (!$userId) return false;
+
+        $apiKey = DeepseekSetting::getApiKeyForUser($userId);
+        return !empty($apiKey);
     }
 
     public function send(): void
@@ -291,19 +367,25 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
         // Emit event for frontend typing indicator
         $this->dispatch('messageSent');
 
-        $apiKey = auth()->user()?->deepseek_api_key ?: config('deepseek-chat.api_key');
-        $base = rtrim((string) config('deepseek-chat.base_url'), '/');
+        $userId = (int) auth()->id();
+        $apiKey = DeepseekSetting::getApiKeyForUser($userId);
+        $baseUrl = DeepseekSetting::getBaseUrlForUser($userId);
+        $timeout = DeepseekSetting::getTimeoutForUser($userId);
 
         if (!$apiKey) {
-            $this->messages[] = ['role' => 'assistant', 'content' => 'Missing DeepSeek API key. Set it in config or .env.'];
+            // Instead of showing error message, trigger the Set API Key modal
+            $this->dispatch('open-modal', ['id' => 'set-api-key-modal']);
+
+            // Add a helpful message to guide the user
+            $this->messages[] = ['role' => 'assistant', 'content' => 'Please set your DeepSeek API key to start chatting. You can get one from [DeepSeek Console](https://platform.deepseek.com/).'];
             $this->dispatch('messageReceived');
             return;
         }
 
         try {
             $response = Http::withToken($apiKey)
-                ->timeout((int) config('deepseek-chat.timeout', 60))
-                ->post($base.'/v1/chat/completions', [
+                ->timeout($timeout)
+                ->post(rtrim($baseUrl, '/').'/v1/chat/completions', [
                     'model' => 'deepseek-chat',
                     'messages' => array_map(fn($m) => ['role' => $m['role'], 'content' => $m['content']], $this->messages),
                     'stream' => false,
@@ -350,15 +432,8 @@ class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
     {
         $user = auth()->user();
         if (! $user) return false;
-        $allowed = (array) config('deepseek-chat.allow_roles', []);
-        if (empty($allowed)) {
-            return true;
-        }
-        if (method_exists($user, 'hasAnyRole')) {
-            return $user->hasAnyRole($allowed);
-        }
-        $role = data_get($user, 'role');
-        return $role ? in_array($role, $allowed, true) : false;
+
+        return DeepseekSetting::userHasAccess($user->id);
     }
 
     protected function canViewAllChats(): bool
