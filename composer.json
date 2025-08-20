@@ -1,6 +1,6 @@
 {
   "name": "filament/deepseek-chat",
-  "description": "Filament panel plugin providing a DeepSeek chat page with admin-manageable API key.",
+  "description": "Wirechat Dashboard plugin for Filament - Chat interface and management",
   "type": "library",
   "license": "MIT",
   "keywords": ["Laravel", "Filament", "Platform"],

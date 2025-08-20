@@ -1,6 +1,6 @@
 <?php
 
-namespace Filaforge\DeepseekChat\Pages;
+namespace Filaforge\WirechatDashboard\Pages;
 
 use Filament\Pages\Page;
 use Filament\Tables;
@@ -12,10 +12,10 @@ use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Filaforge\DeepseekChat\Models\Conversation;
-use Filaforge\DeepseekChat\Pages\Actions\SetApiKey;
+use Filaforge\WirechatDashboard\Models\Conversation;
+use Filaforge\WirechatDashboard\Pages\Actions\SetApiKey;
 
-class DeepseekChatPage extends Page implements Tables\Contracts\HasTable
+class WirechatDashboardPage extends Page implements Tables\Contracts\HasTable
 {
     use Tables\Concerns\InteractsWithTable;
     protected static \BackedEnum|string|null $navigationIcon = 'heroicon-o-chat-bubble-oval-left-ellipsis';

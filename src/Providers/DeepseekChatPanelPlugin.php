@@ -1,13 +1,13 @@
 <?php
 
-namespace Filaforge\DeepseekChat\Providers;
+namespace Filaforge\WirechatDashboard\Providers;
 
-use Filaforge\DeepseekChat\Pages\DeepseekChatPage;
-use Filaforge\DeepseekChat\Pages\DeepseekSettingsPage;
+use Filaforge\WirechatDashboard\Pages\WirechatDashboardPage;
+use Filaforge\WirechatDashboard\Pages\DeepseekSettingsPage;
 use Filament\Contracts\Plugin as PluginContract;
 use Filament\Panel;
 
-class DeepseekChatPanelPlugin implements PluginContract
+class WirechatDashboardPanelPlugin implements PluginContract
 {
     public static function make(): static
     {
@@ -22,7 +22,7 @@ class DeepseekChatPanelPlugin implements PluginContract
     public function register(Panel $panel): void
     {
         $panel->pages([
-            DeepseekChatPage::class,
+            WirechatDashboardPage::class,
         ]);
     }
 

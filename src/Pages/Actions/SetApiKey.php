@@ -1,6 +1,6 @@
 <?php
 
-namespace Filaforge\DeepseekChat\Pages\Actions;
+namespace Filaforge\WirechatDashboard\Pages\Actions;
 
 use Filament\Actions\Action;
 use Filament\Forms; // For form components

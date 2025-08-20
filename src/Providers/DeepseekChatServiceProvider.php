@@ -1,6 +1,6 @@
 <?php
 
-namespace Filaforge\DeepseekChat\Providers;
+namespace Filaforge\WirechatDashboard\Providers;
 
 use Filament\Support\Assets\Css;
 use Filament\Support\Facades\FilamentAsset;
@@ -11,7 +11,7 @@ use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
-class DeepseekChatServiceProvider extends PackageServiceProvider
+class WirechatDashboardServiceProvider extends PackageServiceProvider
 {
     public static string $name = 'deepseek-chat';
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Filaforge\DeepseekChat\Models;
+namespace Filaforge\WirechatDashboard\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

@@ -13,7 +13,7 @@ echo "============================================\n\n";
 
 // Test 1: Check if service provider can be instantiated
 try {
-    $provider = new \Filaforge\DeepseekChat\Providers\DeepseekChatServiceProvider();
+    $provider = new \Filaforge\WirechatDashboard\Providers\WirechatDashboardServiceProvider();
     echo "✓ Service provider instantiated successfully\n";
 } catch (Exception $e) {
     echo "✗ Failed to instantiate service provider: " . $e->getMessage() . "\n";

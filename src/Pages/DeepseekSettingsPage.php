@@ -1,6 +1,6 @@
 <?php
 
-namespace Filaforge\DeepseekChat\Pages;
+namespace Filaforge\WirechatDashboard\Pages;
 
 use Filament\Pages\Page;
 use Filament\Notifications\Notification;

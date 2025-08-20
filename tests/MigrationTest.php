@@ -1,15 +1,15 @@
 <?php
 
-namespace Filaforge\DeepseekChat\Tests;
+namespace Filaforge\WirechatDashboard\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Filaforge\DeepseekChat\Providers\DeepseekChatServiceProvider;
+use Filaforge\WirechatDashboard\Providers\WirechatDashboardServiceProvider;
 
 class MigrationTest extends TestCase
 {
     public function testMigrationClassExtraction()
     {
-        $provider = new DeepseekChatServiceProvider();
+        $provider = new WirechatDashboardServiceProvider();
 
         // Test the reflection method to get migration class name
         $reflection = new \ReflectionClass($provider);
@@ -31,7 +31,7 @@ class MigrationTest extends TestCase
 
     public function testMigrationDetection()
     {
-        $provider = new DeepseekChatServiceProvider();
+        $provider = new WirechatDashboardServiceProvider();
 
         $reflection = new \ReflectionClass($provider);
         $method = $reflection->getMethod('hasMigrationBeenRun');
